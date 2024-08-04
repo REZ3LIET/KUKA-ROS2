@@ -2,7 +2,8 @@
 
 ## Overview
 
-**KUKA-ROS2** is a repository for integrating a KUKA robotic arm with ROS 2 Humble using Classic Gazebo for simulation and MoveIt for motion planning. This project aims to provide a comprehensive setup for simulating and controlling a KUKA robot in a ROS 2 environment.
+**KUKA-ROS2** is a repository for integrating a KUKA robotic arm with ROS 2 Humble using **Classic Gazebo** for simulation and MoveIt for motion planning. This project aims to provide a comprehensive setup for simulating and controlling a KUKA robot in a ROS 2 environment.
+This repository does not contain Hardare Integration.
 
 ## Features
 
