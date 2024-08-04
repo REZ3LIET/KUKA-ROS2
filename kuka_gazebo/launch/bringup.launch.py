@@ -52,7 +52,7 @@ def generate_launch_description():
             "-entity", "kuka_arm",
             "-x", "0.0",
             "-y", "0.0",
-            "-z", "0.3",
+            "-z", "0.0",
         ],
         output="both"
     )

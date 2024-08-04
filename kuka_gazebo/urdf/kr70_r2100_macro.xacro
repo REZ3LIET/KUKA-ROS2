@@ -6,30 +6,23 @@
     <!-- ros2 control instance -->
     <xacro:kuka_iontec_ros2_control name="${prefix}kr70_r2100" client_ip="${client_ip}" client_port="${client_port}" prefix="${prefix}" use_fake_hardware="${use_fake_hardware}" roundtrip_time="${roundtrip_time}"/>
     <xacro:arg name="pkg_path" default="$(find kuka_gazebo)"/>
-    <link name="ground">
-      <inertial>
-        <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
-        <mass value="0.001"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
-      </inertial>
-    </link>
+    <link name="world"/>
     <link name="${prefix}base_link">
       <collision>
         <geometry>
           <mesh filename="file://$(arg pkg_path)/meshes/kr70_r2100/collision/base_link.stl"/>
         </geometry>
-        <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
       </collision>
       <visual>
         <geometry>
           <mesh filename="file://$(arg pkg_path)/meshes/kr70_r2100/visual/base_link.dae"/>
         </geometry>
-        <origin rpy="-0.0 0.0 -0.0" xyz="0.0 0.0 0.0"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
       </visual>
       <inertial>
-        <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
-        <mass value="0.001"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+        <mass value="2.5205E2"/>
+        <inertia ixx="5.40709339054184" ixy="0.0" ixz="0.0" iyy="7.71982652844139" iyz="0.0" izz="9.08867781161129"/>
       </inertial>
     </link>
     <link name="${prefix}link_1">
@@ -146,8 +139,8 @@
         <origin rpy="-0.0 1.5707963 -0.0" xyz="-1.515000 0.0 1.359000"/>
       </visual>
     </link>
-    <joint name="${prefix}ground-base_link" type="fixed">
-      <parent link="ground"/>
+    <joint name="${prefix}world-base_link" type="fixed">
+      <parent link="world"/>
       <child link="${prefix}base_link"/>
       <xacro:insert_block name="origin"/>
     </joint>
