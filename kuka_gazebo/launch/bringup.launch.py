@@ -14,15 +14,11 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='True')
 
     # Loading Gazebo
-    gazebo_node = IncludeLaunchDescription(
+    ign_gazebo_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory("gazebo_ros"), "launch"), "/gazebo.launch.py"]
+            [os.path.join(get_package_share_directory("ros_gz_sim"), "launch"), "/gz_sim.launch.py"]
         ),
-        launch_arguments={
-            "use_sim_time": use_sim_time,
-            "verbose": "true"
-            # "world": world_file
-        }.items()
+        launch_arguments={'gz_args': '-g '}.items() 
     )
 
     # Loading Robot Model
@@ -45,11 +41,11 @@ def generate_launch_description():
 
     # Spawn Robot in Gazebo
     spawn_robot_node = Node(
-        package="gazebo_ros",
-        executable="spawn_entity.py",
+        package="ros_gz_sim",
+        executable="create",
         arguments=[
             "-topic", "robot_description",
-            "-entity", "kuka_arm",
+            "-name", "kuka_arm",
             "-x", "0.0",
             "-y", "0.0",
             "-z", "0.0",
@@ -64,7 +60,7 @@ def generate_launch_description():
     )
 
     kuka_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_controller'],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'joint_trajectory_controller'],
         output="screen"
     )
 
@@ -83,7 +79,7 @@ def generate_launch_description():
     )
  
     return LaunchDescription([
-        gazebo_node,
+        ign_gazebo_node,
         robot_state_publisher,
         spawn_robot_node,
         load_joint_state_controller,
