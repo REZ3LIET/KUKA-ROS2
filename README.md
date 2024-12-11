@@ -2,12 +2,12 @@
 
 ## Overview
 
-**KUKA-ROS2** is a repository for integrating a KUKA robotic arm with ROS 2 Humble using **Ignition Gazebo and Classic Gazebo** for simulation and MoveIt for motion planning. This project aims to provide a comprehensive setup for simulating and controlling a KUKA robot in a ROS 2 environment.
+**KUKA-ROS2** is a repository for integrating a KUKA robotic arm with ROS 2 Humble using **Ignition Gazebo** for simulation and MoveIt for motion planning. This project aims to provide a comprehensive setup for simulating and controlling a KUKA robot in a ROS 2 environment.
 This repository does not contain Hardare Integration.
 
 ## Features
 
-- **KUKA Robot Simulation**: Set up and control a KUKA robotic arm within Ignition Gazebo.
+- **KUKA Robot Simulation**: Set up and control a KUKA robotic arm within Ignition Gazebo Fortress.
 - **ROS 2 Integration**: Utilizes ROS 2 Humble for communication and control.
 - **MoveIt Integration**: Employs MoveIt for advanced motion planning and execution.
 - **Documentation**: Includes configuration files, launch scripts, and example code to get started quickly.
@@ -24,7 +24,7 @@ Before you begin, ensure you have met the following requirements:
 1. **Clone the Repository**
 
     ```bash
-    git clone https://github.com/REZ3LIET/KUKA-ROS2.git
+    git clone --branch ignition-gazebo https://github.com/REZ3LIET/KUKA-ROS2.git
     cd KUKA-ROS2
     ```
 
@@ -57,7 +57,7 @@ Before you begin, ensure you have met the following requirements:
 **Gazebo**
 To launch the KUKA robot simulation, use the following commands:
 
-![Kuka in Gazebo](./readme_data/kuka_gazebo.png)
+![Kuka in Gazebo](./readme_data/kuka_gazebo_ign.png)
 
 ```
 ros2 launch kuka_gazebo gazebo.launch.py
@@ -66,7 +66,7 @@ ros2 launch kuka_gazebo gazebo.launch.py
 **Moveit2**
 To launch the KUKA moveit in RVIZ, use the following commands:
 
-![Kuka in RVIZ](./readme_data/kuka_moveit.gif)
+![Kuka in RVIZ](./readme_data/moveit_kuka_ign.gif)
 
 ```
 ros2 launch kuka_gazebo moveit.launch.launch.py
@@ -79,5 +79,5 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICEN
 ## Acknowledgements
 - The URDF model for the KUKA robot was borrowed from [kuka_robot_descriptions](https://github.com/kroshu/kuka_robot_descriptions). Specifically, it is located in `kuka_robot_descriptions/kuka_iontec_support/urdf/`. Thank you to the original authors for providing this valuable resource.
 - [ROS 2](https://index.ros.org/doc/ros2/)
-- [Gazebo](http://gazebosim.org/)
-- [MoveIt](https://moveit.ros.org/)
+- [Gazebo](https://gazebosim.org/docs/latest/getstarted/)
+- [MoveIt](https://moveit.picknik.ai/humble/index.html)
