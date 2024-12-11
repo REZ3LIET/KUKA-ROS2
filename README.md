@@ -24,7 +24,7 @@ Before you begin, ensure you have met the following requirements:
 1. **Clone the Repository**
 
     ```bash
-    git clone https://github.com/REZ3LIET/KUKA-ROS2.git
+    git clone --branch classic-gazebo https://github.com/REZ3LIET/KUKA-ROS2.git
     cd KUKA-ROS2
     ```
 
@@ -80,4 +80,4 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICEN
 - The URDF model for the KUKA robot was borrowed from [kuka_robot_descriptions](https://github.com/kroshu/kuka_robot_descriptions). Specifically, it is located in `kuka_robot_descriptions/kuka_iontec_support/urdf/`. Thank you to the original authors for providing this valuable resource.
 - [ROS 2](https://index.ros.org/doc/ros2/)
 - [Gazebo](http://gazebosim.org/)
-- [MoveIt](https://moveit.ros.org/)
+- [MoveIt 2](https://moveit.picknik.ai/humble/index.html)
