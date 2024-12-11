@@ -22,7 +22,7 @@ Before you begin, ensure you have met the following requirements:
 ## Installation
 
 - For Classic Gazebo refer: [Kuka-ROS2 Classic-Gazebo branch](https://github.com/REZ3LIET/KUKA-ROS2/tree/classic-gazebo?tab=readme-ov-file#installation)
-- For Gazebo Fortress refer: [Kuka-ROS2 Classic-Gazebo branch](https://github.com/REZ3LIET/KUKA-ROS2/tree/ignition-gazebo?tab=readme-ov-file#installation)
+- For Gazebo Fortress refer: [Kuka-ROS2 Gazebo-Fortress branch](https://github.com/REZ3LIET/KUKA-ROS2/tree/ignition-gazebo?tab=readme-ov-file#installation)
 
 ## Usage
 ### Gazebo 
