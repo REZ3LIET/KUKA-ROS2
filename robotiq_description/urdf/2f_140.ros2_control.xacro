@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="robotiq_gripper_ros2_control" params="
+        prefix
+        sim_ignition:=true">
+
+        <ros2_control name="IgnitionSystem" type="system">
+            <!-- Plugins -->
+           <hardware>
+                <plugin>ign_ros2_control/IgnitionSystem</plugin>
+            </hardware>
+
+            <!-- Joint interfaces -->
+            <!-- With Ignition or Hardware, they handle mimic joints, so we only need this command interface activated -->
+            <joint name="${prefix}finger_joint">
+                <command_interface name="position" />
+                <state_interface name="position">
+                    <param name="initial_value">0.695</param>
+                </state_interface>
+                <state_interface name="velocity"/>
+            </joint>
+            <!-- When simulating we need to include the rest of the gripper joints -->
+            <joint name="${prefix}left_inner_knuckle_joint">
+                <param name="mimic">${prefix}finger_joint</param>
+                <param name="multiplier">-1</param>
+                <xacro:unless value="${sim_ignition}">
+                    <command_interface name="position"/>
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </xacro:unless>
+            </joint>
+            <joint name="${prefix}left_inner_finger_joint">
+                <param name="mimic">${prefix}finger_joint</param>
+                <param name="multiplier">1</param>
+                <xacro:unless value="${sim_ignition}">
+                    <command_interface name="position"/>
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </xacro:unless>
+            </joint>
+            <joint name="${prefix}right_outer_knuckle_joint">
+                <param name="mimic">${prefix}finger_joint</param>
+                <param name="multiplier">-1</param>
+                <xacro:unless value="${sim_ignition}">
+                    <command_interface name="position"/>
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </xacro:unless>
+            </joint>
+            <joint name="${prefix}right_inner_knuckle_joint">
+                <param name="mimic">${prefix}finger_joint</param>
+                <param name="multiplier">-1</param>
+                <xacro:unless value="${sim_ignition}">
+                    <command_interface name="position"/>
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </xacro:unless>
+            </joint>
+            <joint name="${prefix}right_inner_finger_joint">
+                <param name="mimic">${prefix}finger_joint</param>
+                <param name="multiplier">1</param>
+                <xacro:unless value="${sim_ignition}">
+                    <command_interface name="position"/>
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </xacro:unless>
+            </joint>
+        </ros2_control>
+    </xacro:macro>
+    <gazebo>
+      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+          <robot_param>robot_description</robot_param>
+          <robot_param_node>robot_state_publisher</robot_param_node>
+          <parameters>$(find robotiq_description)/config/robotiq_controllers.yaml</parameters>
+      </plugin>
+    </gazebo>
+</robot>
