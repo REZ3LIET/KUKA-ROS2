@@ -3,7 +3,7 @@
 import os
 import xacro
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler, ExecuteProcess
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler, ExecuteProcess, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
@@ -11,19 +11,18 @@ from launch.event_handlers import OnProcessExit
 from ament_index_python.packages import get_package_share_directory
  
 def generate_launch_description():
-    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
-
     # Loading Gazebo
     ign_gazebo_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [os.path.join(get_package_share_directory("ros_gz_sim"), "launch"), "/gz_sim.launch.py"]
         ),
-        launch_arguments={'gz_args': '-r -v2'}.items() 
+        launch_arguments={'gz_args': '-r -v1'}.items() 
     )
 
     # Loading Robot Model
     pkg_dir = get_package_share_directory('kuka_gazebo')
-    robot_xacro = Command(['xacro ', os.path.join(pkg_dir, 'urdf/kr70_r2100.urdf.xacro')])
+    robot_xacro = Command([
+        'xacro ', os.path.join(pkg_dir, 'urdf/kr70_r2100.urdf.xacro')])
     robot_description = {"robot_description": robot_xacro}
 
     # Publish TF
@@ -56,7 +55,7 @@ def generate_launch_description():
     )
 
     kuka_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_controller'],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_arm_controller'],
         output="screen"
     )
 
@@ -73,8 +72,9 @@ def generate_launch_description():
             on_exit=[kuka_controller]
         )
     )
- 
+
     return LaunchDescription([
+        DeclareLaunchArgument("gripper_name", default_value=""),
         ign_gazebo_node,
         robot_state_publisher,
         spawn_robot_node,

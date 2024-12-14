@@ -1,0 +1,26 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: kuka_gazebo
+    relative_path: urdf/kr70_r2100.urdf.xacro
+    xacro_args: gripper_name:="robotiq_2f_85"
+  srdf:
+    relative_path: config/kr70_r2100.srdf
+  package_settings:
+    author_name: REZ3LIET
+    author_email: rz.samar.kale@gmail.com
+    generated_timestamp: 1734169445
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

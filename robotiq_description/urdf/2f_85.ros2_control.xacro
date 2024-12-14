@@ -68,13 +68,11 @@
             </joint>
         </ros2_control>
     </xacro:macro>
-
     <gazebo>
-      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-          <robot_param>robot_description</robot_param>
-          <robot_param_node>robot_state_publisher</robot_param_node>
-          <parameters>$(find robotiq_description)/config/robotiq_controllers.yaml</parameters>
-      </plugin>
-  </gazebo>
-
+        <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>robot_state_publisher</robot_param_node>
+            <parameters>$(find robotiq_description)/config/robotiq_2f85_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
 </robot>

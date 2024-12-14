@@ -1,0 +1,17 @@
+# This config file is used by ros2_control
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    robotiq_2f_85_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+robotiq_2f_85_controller:
+  ros__parameters:
+    joints:
+      - robotiq_85_left_knuckle_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
