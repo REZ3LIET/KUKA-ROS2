@@ -22,9 +22,7 @@ def generate_launch_description():
     # Loading Robot Model
     pkg_dir = get_package_share_directory('kuka_gazebo')
     robot_xacro = Command([
-        'xacro ', os.path.join(pkg_dir, 'urdf/kr70_r2100.urdf.xacro'),
-        ' gripper_name:=robotiq_2f_85'
-        ])
+        'xacro ', os.path.join(pkg_dir, 'urdf/kr70_r2100_2f85.urdf.xacro')])
     robot_description = {"robot_description": robot_xacro}
 
     # Publish TF
@@ -62,7 +60,7 @@ def generate_launch_description():
     )
 
     robotiq_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f_85_controller'],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f85_controller'],
         output="screen"
     )
 
