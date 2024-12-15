@@ -4,7 +4,7 @@
   <xacro:include filename="$(find kuka_gazebo)/urdf/kr70_r2100_macro.xacro"/>
   <!-- Read additional arguments  -->
   <xacro:arg name="prefix" default=""/>
-  <xacro:arg name="gripper_name" default=""/>
+  <xacro:arg name="gripper_name" default="robotiq_2f_85"/>
   <xacro:kuka_kr70_r2100_robot prefix="$(arg prefix)" gripper_name="$(arg gripper_name)"/>
 
 </robot>

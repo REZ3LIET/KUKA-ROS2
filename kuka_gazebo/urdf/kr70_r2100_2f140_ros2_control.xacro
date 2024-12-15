@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="kuka70_r2100_2f140_ros2_control" params="prefix">
+    <ros2_control name="IgnitionSystem" type="system">
+      <hardware>
+          <plugin>ign_ros2_control/IgnitionSystem</plugin>
+      </hardware>
+      <joint name="${prefix}joint_1">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}joint_2">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">-1.5708</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}joint_3">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">1.5708</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}joint_4">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}joint_5">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}joint_6">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}finger_joint">
+          <command_interface name="position" />
+          <state_interface name="position">
+              <param name="initial_value">0.695</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+      </joint>
+      <!-- When simulating we need to include the rest of the gripper joints -->
+      <joint name="${prefix}left_inner_knuckle_joint">
+          <param name="mimic">${prefix}finger_joint</param>
+          <param name="multiplier">-1</param>
+              <command_interface name="position"/>
+              <state_interface name="position"/>
+              <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}left_inner_finger_joint">
+          <param name="mimic">${prefix}finger_joint</param>
+          <param name="multiplier">1</param>
+              <command_interface name="position"/>
+              <state_interface name="position"/>
+              <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}right_outer_knuckle_joint">
+          <param name="mimic">${prefix}finger_joint</param>
+          <param name="multiplier">-1</param>
+              <command_interface name="position"/>
+              <state_interface name="position"/>
+              <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}right_inner_knuckle_joint">
+          <param name="mimic">${prefix}finger_joint</param>
+          <param name="multiplier">-1</param>
+              <command_interface name="position"/>
+              <state_interface name="position"/>
+              <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}right_inner_finger_joint">
+          <param name="mimic">${prefix}finger_joint</param>
+          <param name="multiplier">1</param>
+              <command_interface name="position"/>
+              <state_interface name="position"/>
+              <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+    <gazebo>
+      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+          <robot_param>robot_description</robot_param>
+          <robot_param_node>robot_state_publisher</robot_param_node>
+          <parameters>$(find kuka_gazebo)/config/kuka_2f140_controllers.yaml</parameters>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>

@@ -3,36 +3,27 @@
 import os
 import xacro
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler, ExecuteProcess
+from launch.actions import IncludeLaunchDescription, RegisterEventHandler, ExecuteProcess, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.event_handlers import OnProcessExit
 from ament_index_python.packages import get_package_share_directory
  
 def generate_launch_description():
-    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
-
     # Loading Gazebo
-    gazebo_node = IncludeLaunchDescription(
+    ign_gazebo_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory("gazebo_ros"), "launch"), "/gazebo.launch.py"]
+            [os.path.join(get_package_share_directory("ros_gz_sim"), "launch"), "/gz_sim.launch.py"]
         ),
-        launch_arguments={
-            "use_sim_time": use_sim_time,
-            "verbose": "true"
-            # "world": world_file
-        }.items()
+        launch_arguments={'gz_args': '-r -v1'}.items() 
     )
 
     # Loading Robot Model
     pkg_dir = get_package_share_directory('kuka_gazebo')
-    robot_xacro = os.path.join(pkg_dir, "urdf", "kr70_r2100.urdf.xacro")
-
-    parser = xacro.parse(open(robot_xacro))
-    xacro.process_doc(parser)
-
-    robot_description = {"robot_description": parser.toxml()}
+    robot_xacro = Command([
+        'xacro ', os.path.join(pkg_dir, 'urdf/kr70_r2100.urdf.xacro')])
+    robot_description = {"robot_description": robot_xacro}
 
     # Publish TF
     robot_state_publisher = Node(
@@ -45,11 +36,11 @@ def generate_launch_description():
 
     # Spawn Robot in Gazebo
     spawn_robot_node = Node(
-        package="gazebo_ros",
-        executable="spawn_entity.py",
+        package="ros_gz_sim",
+        executable="create",
         arguments=[
             "-topic", "robot_description",
-            "-entity", "kuka_arm",
+            "-name", "kuka_arm",
             "-x", "0.0",
             "-y", "0.0",
             "-z", "0.0",
@@ -64,7 +55,7 @@ def generate_launch_description():
     )
 
     kuka_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_controller'],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_arm_controller'],
         output="screen"
     )
 
@@ -81,9 +72,10 @@ def generate_launch_description():
             on_exit=[kuka_controller]
         )
     )
- 
+
     return LaunchDescription([
-        gazebo_node,
+        DeclareLaunchArgument("gripper_name", default_value=""),
+        ign_gazebo_node,
         robot_state_publisher,
         spawn_robot_node,
         load_joint_state_controller,
