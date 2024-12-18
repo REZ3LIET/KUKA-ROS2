@@ -13,6 +13,7 @@
   <exec_depend>ign_ros2_control</exec_depend>
   <exec_depend>ros_gz</exec_depend>
   <exec_depend>xacro</exec_depend>
+  <exec_depend>robotiq_description</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
