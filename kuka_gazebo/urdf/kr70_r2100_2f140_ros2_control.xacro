@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="kuka70_r2100_2f140_ros2_control" params="prefix">
-    <ros2_control name="IgnitionSystem" type="system">
+  <xacro:macro name="kuka70_r2100_2f140_ros2_control" params="prefix robot_name">
+    <ros2_control name="${robot_name}" type="system">
       <hardware>
           <plugin>ign_ros2_control/IgnitionSystem</plugin>
       </hardware>
@@ -76,12 +76,5 @@
           <param name="multiplier">1</param>
       </joint>
     </ros2_control>
-    <gazebo>
-      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-          <robot_param>robot_description</robot_param>
-          <robot_param_node>robot_state_publisher</robot_param_node>
-          <parameters>$(find kuka_gazebo)/config/kuka_2f140_controllers.yaml</parameters>
-      </plugin>
-    </gazebo>
   </xacro:macro>
 </robot>
