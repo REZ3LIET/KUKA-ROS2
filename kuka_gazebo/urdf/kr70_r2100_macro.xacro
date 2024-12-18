@@ -2,6 +2,7 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:macro name="kuka_kr70_r2100_robot" params="
     prefix
+    robot_name
     gripper_name
   ">
 
@@ -225,7 +226,9 @@
     </xacro:if>
     <xacro:if value="${gripper_name == 'robotiq_2f_140'}">
       <xacro:include filename="$(find kuka_gazebo)/urdf/kr70_r2100_2f140_ros2_control.xacro"/>
-      <xacro:kuka70_r2100_2f140_ros2_control prefix="${prefix}"/>
+      <xacro:kuka70_r2100_2f140_ros2_control
+        prefix="${prefix}"
+        robot_name="${robot_name}"/>
       <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_140_macro.urdf.xacro" />
       <xacro:robotiq_gripper prefix="${prefix}" parent="${prefix}link_6">
         <origin rpy="0.0 ${pi} 0.0" xyz="0.0 0.0 -0.036" />
