@@ -13,15 +13,15 @@ from ament_index_python.packages import get_package_share_directory
 from launch.conditions import IfCondition
 from launch.launch_context import LaunchContext
 
-def rewrite_yaml(source_file: str, root_key: LaunchConfiguration):
-    context = LaunchContext()
-    root_key = root_key.perform(context)
+def rewrite_yaml(source_file: str, root_key: str):
+    # context = LaunchContext()
+    # root_key = root_key.perform(context)
     if not root_key:
         return source_file
 
     with open(source_file, 'r') as file:
         ori_data = yaml.safe_load(file)
-    
+
     updated_yaml = {root_key: ori_data}
     dst_path = f"/tmp/{time.time()}.yaml"
     with open(dst_path, 'w') as file:
@@ -31,7 +31,8 @@ def rewrite_yaml(source_file: str, root_key: LaunchConfiguration):
 def generate_launch_description():
     ign_gz = LaunchConfiguration('ign_gz', default='True')
     robot_name = LaunchConfiguration('robot_name', default='kuka_2f140_arm')
-    namespace = LaunchConfiguration('namespace', default='')
+    # namespace = LaunchConfiguration('namespace', default='arm_1')
+    namespace = "arm_1"
     position_x = LaunchConfiguration('position_x', default='0.0')
     position_y = LaunchConfiguration('position_y', default='0.0')
     orientation_yaw = LaunchConfiguration('orientation_yaw', default='0.0')
@@ -78,7 +79,7 @@ def generate_launch_description():
         package="ros_gz_sim",
         executable="create",
         arguments=[
-            "-topic", PathJoinSubstitution([namespace, "/robot_description"]),
+            "-topic", namespace+"/robot_description",
             "-name", robot_name,
             "-robot_namespace", namespace,
             "-x", position_x,
@@ -90,17 +91,17 @@ def generate_launch_description():
 
     # Load Controllers
     joint_state_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'joint_state_broadcaster', '-c', PathJoinSubstitution([namespace, "/controller_manager"])],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'joint_state_broadcaster', '-c', namespace+"/controller_manager"],
         output="screen"
     )
 
     kuka_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_arm_controller', '-c', PathJoinSubstitution([namespace, "/controller_manager"])],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'kuka_arm_controller', '-c', namespace+"/controller_manager"],
         output="screen"
     )
 
     robotiq_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f140_controller', '-c', PathJoinSubstitution([namespace, "/controller_manager"])],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f140_controller', '-c', namespace+"/controller_manager"],
         output="screen"
     )
 
