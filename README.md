@@ -86,7 +86,11 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICEN
 
 
 ## Acknowledgements
-- The URDF model for the KUKA robot was borrowed from [kuka_robot_descriptions](https://github.com/kroshu/kuka_robot_descriptions). Specifically, it is located in `kuka_robot_descriptions/kuka_iontec_support/urdf/`. Thank you to the original authors for providing this valuable resource.
+- The URDF model for the KUKA robot was taken from [kuka_robot_descriptions](https://github.com/kroshu/kuka_robot_descriptions). Specifically, it is located in `kuka_robot_descriptions/kuka_iontec_support/urdf/`. 
+- The descriptions of Robotiq grippers were taken from [PickNikRobotics' Github](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main)
 - [ROS 2](https://index.ros.org/doc/ros2/)
 - [Gazebo](https://gazebosim.org/docs/latest/getstarted/)
 - [MoveIt 2](https://moveit.picknik.ai/humble/index.html)
+
+
+Thank you to the original authors for providing these valuable resources.
