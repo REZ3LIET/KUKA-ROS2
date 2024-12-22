@@ -20,7 +20,7 @@ def generate_launch_description():
     )
 
     # Loading Robot Model
-    pkg_dir = get_package_share_directory('kuka_gazebo')
+    pkg_dir = get_package_share_directory('kuka_description')
     robot_xacro = Command([
         'xacro ', os.path.join(pkg_dir, 'urdf/kr70_r2100.urdf.xacro')])
     robot_description = {"robot_description": robot_xacro}

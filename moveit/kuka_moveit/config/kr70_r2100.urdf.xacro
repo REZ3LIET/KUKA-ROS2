@@ -3,7 +3,7 @@
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
 
     <!-- Import kr70_r2100 urdf file -->
-    <xacro:include filename="$(find kuka_gazebo)/urdf/kr70_r2100_2f140.urdf.xacro" />
+    <xacro:include filename="$(find kuka_description)/urdf/kr70_r2100.urdf.xacro" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="kr70_r2100.ros2_control.xacro" />

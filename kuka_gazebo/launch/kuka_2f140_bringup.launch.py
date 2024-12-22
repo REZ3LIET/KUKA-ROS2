@@ -32,6 +32,7 @@ def generate_launch_description():
     ign_gz = LaunchConfiguration('ign_gz', default='True')
     robot_name = LaunchConfiguration('robot_name', default='kuka_2f140_arm')
     # namespace = LaunchConfiguration('namespace', default='arm_1')
+    namespace = ""
     namespace = "arm_1"
     position_x = LaunchConfiguration('position_x', default='0.0')
     position_y = LaunchConfiguration('position_y', default='0.0')
@@ -47,9 +48,10 @@ def generate_launch_description():
     )
 
     # Updating controller parameters
-    pkg_dir = get_package_share_directory('kuka_gazebo')
+    sim_dir = get_package_share_directory('kuka_gazebo')
+    pkg_dir = get_package_share_directory('kuka_description')
     controller_file = rewrite_yaml(
-        source_file=os.path.join(pkg_dir, "config/kuka_2f140_controllers.yaml"),
+        source_file=os.path.join(sim_dir, "config/kuka_2f140_controllers.yaml"),
         root_key=namespace
     )
 

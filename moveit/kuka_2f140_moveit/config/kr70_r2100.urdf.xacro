@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="kr70_r2100">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <xacro:arg name="namespace" default=""/>
 
     <!-- Import kr70_r2100 urdf file -->
-    <xacro:include filename="$(find kuka_gazebo)/urdf/kr70_r2100.urdf.xacro" />
+    <xacro:include filename="$(find kuka_description)/urdf/kr70_r2100_2f140.urdf.xacro" namespace="$(arg namespace)" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="kr70_r2100.ros2_control.xacro" />

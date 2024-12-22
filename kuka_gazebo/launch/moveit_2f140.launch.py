@@ -8,10 +8,12 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='True')
+    namespace = ""
+    namespace = "arm_1"
 
     moveit_config = (
         MoveItConfigsBuilder("kr70_r2100", package_name="kuka_2f140_moveit")
-        .robot_description(file_path="config/kr70_r2100.urdf.xacro")
+        .robot_description(file_path="config/kr70_r2100.urdf.xacro", mappings={"namespace": namespace})
         .robot_description_semantic(file_path="config/kr70_r2100.srdf")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
         .to_moveit_configs()
@@ -29,6 +31,7 @@ def generate_launch_description():
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
+        namespace=namespace,
         output="screen",
         parameters=[
             moveit_config.to_dict(),
@@ -46,6 +49,7 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2_launch",
         output="screen",
+        namespace=namespace,
         arguments=["-d", rviz_config_file],
         parameters=[
             moveit_config.planning_pipelines,
@@ -53,7 +57,10 @@ def generate_launch_description():
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
             {"use_sim_time": use_sim_time}
-        ],
+        ]
     )
 
-    return LaunchDescription([move_group_node, rviz_node])
+    return LaunchDescription([
+        move_group_node,
+        # rviz_node
+    ])
