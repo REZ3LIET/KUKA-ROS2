@@ -10,6 +10,7 @@ This repository does not contain Hardare Integration.
 - **KUKA Robot Simulation**: Set up and control a KUKA robotic arm within Ignition Gazebo Fortress.
 - **ROS 2 Integration**: Utilizes ROS 2 Humble for communication and control.
 - **MoveIt 2 Integration**: Employs MoveIt 2 for advanced motion planning and execution.
+- **Robotiq Grippers**: It has Robotiq 2f-85 and 2f-140 integrated to it.
 - **Documentation**: Includes configuration files, launch scripts, and example code to get started quickly.
 
 ## Prerequisites
@@ -55,22 +56,20 @@ Before you begin, ensure you have met the following requirements:
     ```
 
 ## Usage
-### Gazebo
 
 ![Kuka in Fortress](./readme_data/kuka_gazebo_ign.png)
 
 To launch the KUKA robot simulation, use the following commands:
 ```
-ros2 launch kuka_gazebo gazebo.launch.py
-```
-
-### Moveit2
-
-![Kuka in RVIZ](./readme_data/moveit_kuka_ign.gif)
-
-To launch the KUKA moveit in RVIZ, use the following commands:
-```
-ros2 launch kuka_gazebo moveit.launch.launch.py
+ros2 launch kuka_gazebo gazebo.launch.py \
+    'ign_gz:=True' \ # (Optional) To launch Gazebo [default: 'True']
+    'use_sime_time:=True' \ # (Optional) Use simulator time [default: 'True']
+    'robot_name:=True' \ # (Optional) Name of the robot [default: 'kuka_arm']
+    'namespace:=True' \ # (Optional) Namespace for the robot [default: '']
+    'gripper_name:=True' \ # (Optional) Name of gripper to use [default: '' | "", "robotiq_2f_85", "robotiq_2f_140"]
+    'position_x:=True' \ # (Optional) X position to spawn the robot [default: '0.0']
+    'position_y:=True' \ # (Optional) Y position to spawn the robot [default: '0.0']
+    'orientation_yaw:=True' \ # (Optional) Yaw angle to spawn robot [default: '0.0']
 ```
 
 ## License

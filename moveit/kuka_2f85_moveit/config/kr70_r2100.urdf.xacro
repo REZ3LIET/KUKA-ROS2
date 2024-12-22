@@ -3,7 +3,18 @@
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
 
     <!-- Import kr70_r2100 urdf file -->
-    <xacro:include filename="$(find kuka_description)/urdf/kr70_r2100_2f85.urdf.xacro" />
+    <xacro:arg name="prefix" default=""/>
+    <xacro:arg name="robot_name" default="kuka_arm"/>
+    <xacro:arg name="namespace" default=""/>
+    <xacro:arg name="gripper_name" default=""/>
+    <xacro:arg name="controller_file" default="$(find kuka_gazebo)/config/kuka_controllers.yaml"/>
+    <xacro:include
+        filename="$(find kuka_description)/urdf/kr70_r2100.urdf.xacro"
+        prefix="$(arg prefix)"
+        robot_name="$(arg robot_name)"
+        namespace="$(arg namespace)"
+        gripper_name="$(arg gripper_name)"
+        controller_file="$(arg controller_file)" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="kr70_r2100.ros2_control.xacro" />
