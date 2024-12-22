@@ -10,9 +10,6 @@ find_package(ament_cmake REQUIRED)
 find_package(ign_ros2_control REQUIRED)
 find_package(ros_gz REQUIRED)
 find_package(xacro REQUIRED)
-find_package(kuka_moveit REQUIRED)
-find_package(kuka_2f85_moveit REQUIRED)
-find_package(kuka_2f140_moveit REQUIRED)
 find_package(robotiq_description REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.

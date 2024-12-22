@@ -12,7 +12,7 @@ def generate_launch_description():
     namespace = "arm_1"
 
     moveit_config = (
-        MoveItConfigsBuilder("kr70_r2100", package_name="kuka_2f140_moveit")
+        MoveItConfigsBuilder("kuka_arm", package_name="kuka_2f140_moveit")
         .robot_description(file_path="config/kr70_r2100.urdf.xacro", mappings={"namespace": namespace})
         .robot_description_semantic(file_path="config/kr70_r2100.srdf")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
