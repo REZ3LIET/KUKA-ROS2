@@ -30,6 +30,7 @@ endif()
 install(DIRECTORY
   config
   launch
+  world
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()

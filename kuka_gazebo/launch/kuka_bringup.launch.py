@@ -29,6 +29,15 @@ def rewrite_yaml(source_file: str, root_key: str):
         yaml.dump(updated_yaml, file)
     return dst_path
 
+def load_yaml(package_path, file_path):
+
+    absolute_file_path = os.path.join(package_path, file_path)
+    try:
+        with open(absolute_file_path, "r") as file:
+            return yaml.safe_load(file)
+    except EnvironmentError:
+        return None
+
 def load_robot(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration('use_sim_time', default='True')
     robot_name = LaunchConfiguration('robot_name', default='kuka_arm')
@@ -126,7 +135,7 @@ def load_robot(context, *args, **kwargs):
     )
 
     moveit_config = (
-        MoveItConfigsBuilder(robot_name_val, package_name=moveit_pkg)
+        MoveItConfigsBuilder("kr70_r2100", package_name=moveit_pkg)
         .robot_description(
             file_path="config/kr70_r2100.urdf.xacro",
             mappings={
@@ -134,8 +143,10 @@ def load_robot(context, *args, **kwargs):
                 "namespace": namespace_val,
                 "gripper_name": gripper_name_val,
                 "controller_file": controller_file,
-                }
-            )
+            }
+        )
+        # .planning_pipelines("ompl")
+        .robot_description_kinematics(file_path="config/kinematics.yaml")
         .robot_description_semantic(file_path="config/kr70_r2100.srdf")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
         .to_moveit_configs()
@@ -150,6 +161,29 @@ def load_robot(context, *args, **kwargs):
         "publish_robot_description_semantic": True
     }
 
+    ompl_planning_pipeline_config = {
+        "ompl": {
+            "planning_plugin": "ompl_interface/OMPLPlanner",
+            "request_adapters": "default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints",
+            "start_state_max_bounds_error": 0.1,
+        },
+    }
+
+    ompl_planning_yaml = load_yaml(
+        get_package_share_directory(moveit_pkg), "config/ompl_planning.yaml"
+    )
+
+    ompl_planning_pipeline_config["ompl"].update(ompl_planning_yaml)
+
+    pilz_pipeline = {
+            'pilz_industrial_motion_planner': {
+            'planning_plugin': 'pilz_industrial_motion_planner/CommandPlanner', 
+            'request_adapters': 'default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints', 
+            'default_planner_config': 'PTP', 
+            'capabilities': 'pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService'
+        }
+    }
+
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -158,10 +192,11 @@ def load_robot(context, *args, **kwargs):
         parameters=[
             moveit_config.to_dict(),
             planning_scene_parameters,
+            ompl_planning_pipeline_config,
+            # pilz_pipeline,
             {"use_sim_time": use_sim_time}
         ]
     )
-
 
     load_move_group = RegisterEventHandler(
         event_handler=OnProcessExit(
@@ -219,11 +254,12 @@ def generate_launch_description():
     ign_gz = LaunchConfiguration('ign_gz', default='True')
 
     # Loading Gazebo
+    world = os.path.join(get_package_share_directory("kuka_gazebo"), "world/empty_world.sdf")
     ign_gazebo_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [os.path.join(get_package_share_directory("ros_gz_sim"), "launch"), "/gz_sim.launch.py"]
         ),
-        launch_arguments={'gz_args': '-r -v1'}.items(),
+        launch_arguments={'gz_args': [world, ' -r -v1']}.items(),
         condition=IfCondition(ign_gz)
     )
 
