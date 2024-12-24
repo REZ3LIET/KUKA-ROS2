@@ -23,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'motion_planning = kuka_control.motion_planning:main'
+            'motion_planning = kuka_control.motion_planning:main',
+            'gripper_control = kuka_control.gripper_control:main'
         ],
     },
 )

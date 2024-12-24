@@ -118,10 +118,22 @@ def load_robot(context, *args, **kwargs):
         output="screen"
     )
 
-    robotiq_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f140_controller', '-c', f"{namespace_val}/controller_manager"],
-        output="screen"
-    )
+    robotiq_controller = None
+    if gripper_name_val == "robotiq_2f_85":
+        robotiq_controller = ExecuteProcess(
+            cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f85_controller', '-c', f"{namespace_val}/controller_manager"],
+            output="screen"
+        )
+    elif gripper_name_val == "robotiq_2f_140":
+        robotiq_controller = ExecuteProcess(
+            cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'robotiq_2f140_controller', '-c', f"{namespace_val}/controller_manager"],
+            output="screen"
+        )
+    else:
+        robotiq_controller = ExecuteProcess(
+            cmd=['echo', '"No grippers loaded"'],
+            output="screen"
+        )
 
     load_controllers = RegisterEventHandler(
         event_handler=OnProcessExit(
@@ -146,6 +158,7 @@ def load_robot(context, *args, **kwargs):
             }
         )
         # .planning_pipelines("ompl")
+        .joint_limits(file_path="config/joint_limits.yaml")
         .robot_description_kinematics(file_path="config/kinematics.yaml")
         .robot_description_semantic(file_path="config/kr70_r2100.srdf")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
