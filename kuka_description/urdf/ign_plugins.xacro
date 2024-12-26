@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <gazebo  reference="camera_link_optical">
+    <sensor name="rgb_camera" type="camera">
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>30.0</update_rate>
+      <topic>camera/image_raw</topic>
+      <gz_frame_id>camera_link_optical</gz_frame_id>
+      <camera name="camera">
+        <camera_info_topic>camera/camera_info</camera_info_topic>
+        <horizontal_fov>1.047198</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>30</far>
+        </clip>
+      </camera>
+    </sensor>
+  </gazebo>
+</robot>

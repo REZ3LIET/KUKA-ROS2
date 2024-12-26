@@ -7,6 +7,7 @@
   ">
 
     <!-- ros2 control instance -->
+    <xacro:include filename="$(find kuka_description)/urdf/ign_plugins.xacro" />
     <xacro:arg name="pkg_path" default="$(find kuka_description)"/>
     <link name="world"/>
     <link name="${prefix}base_link">
@@ -141,11 +142,42 @@
         <origin rpy="-0.0 1.5707963 -0.0" xyz="-1.515000 0.0 1.359000"/>
       </visual>
     </link>
+    <link name="camera_link">
+      <inertial>
+        <origin xyz="0.011445556188227846 -6.205521900433345e-05 0.019977181929567947" rpy="0 0 0"/>
+        <mass value="0.07410808731596727"/>
+        <inertia ixx="4.8e-05" iyy="7e-06" izz="4.8e-05" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+        <origin xyz="-0.318 0.0 -0.093001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://$(arg pkg_path)/meshes/kr70_r2100/visual/camera_link.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="-0.318 0.0 -0.093001" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://$(arg pkg_path)/meshes/kr70_r2100/visual/camera_link.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </link>
+    <link name="camera_link_optical"></link>
 
     <!--  Joints  -->
     <joint name="${prefix}world-base_link" type="fixed">
       <parent link="world"/>
       <child link="${prefix}base_link"/>
+    </joint>
+    <joint name="camera_joint" type="fixed">
+      <child link="camera_link"/>
+      <parent link="${prefix}base_link"/>
+      <origin rpy="0.0 0.5 3.142" xyz="4.0 0.0 3.0"/>
+      <axis xyz="0.0 1.0 0.0"/>
+    </joint>
+        <joint name="camera_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="camera_link" />
+        <child link="camera_link_optical" />
     </joint>
     <joint name="${prefix}joint_1" type="revolute">
       <axis xyz="0.0 0.0 1.0"/>
@@ -189,6 +221,7 @@
       <origin rpy="1.5707963267948966 -0.0 -1.5707963267948966" xyz="0.149 0.0 -0.047950000000000007"/>
       <parent link="${prefix}link_5"/>
     </joint>
+    
     <!-- ROS-Industrial 'base' frame - equivalent of 'KUKA ROBROOT'-->
     <link name="${prefix}base"/>
     <joint name="${prefix}base_link-base" type="fixed">

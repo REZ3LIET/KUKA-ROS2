@@ -218,6 +218,13 @@ def load_robot(context, *args, **kwargs):
         )
     )
 
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=['/camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image'],
+        output='screen'
+    )
+
     return [
         DeclareLaunchArgument(
             name="use_sim_time",
@@ -260,7 +267,8 @@ def load_robot(context, *args, **kwargs):
         robot_state_publisher,
         spawn_robot_node,
         load_controllers,
-        load_move_group
+        load_move_group,
+        bridge
     ]
 
 def generate_launch_description():
