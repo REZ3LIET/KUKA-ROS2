@@ -16,6 +16,17 @@ from moveit_configs_utils import MoveItConfigsBuilder
 import rclpy.logging
 logger = rclpy.logging.get_logger("kuka_2f140.launch")
 
+# LOAD FILE:
+def load_file(package_name, file_path):
+    package_path = get_package_share_directory(package_name)
+    absolute_file_path = os.path.join(package_path, file_path)
+    try:
+        with open(absolute_file_path, 'r') as file:
+            return file.read()
+    except EnvironmentError:
+        # parent of IOError, OSError *and* WindowsError where available.
+        return None
+
 def rewrite_yaml(source_file: str, root_key: str):
     if not root_key:
         return source_file
@@ -42,7 +53,7 @@ def load_robot(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration('use_sim_time', default='True')
     robot_name = LaunchConfiguration('robot_name', default='kuka_arm')
     namespace = LaunchConfiguration('namespace', default='')
-    gripper_name = LaunchConfiguration('gripper_name', default='')
+    gripper_name = LaunchConfiguration('gripper_name', default='robotiq_2f_140')
     position_x = LaunchConfiguration('position_x', default='0.0')
     position_y = LaunchConfiguration('position_y', default='0.0')
     orientation_yaw = LaunchConfiguration('orientation_yaw', default='0.0')
@@ -157,11 +168,12 @@ def load_robot(context, *args, **kwargs):
                 "controller_file": controller_file,
             }
         )
-        # .planning_pipelines("ompl")
+        .planning_pipelines("pilz_industrial_motion_planner")
         .joint_limits(file_path="config/joint_limits.yaml")
         .robot_description_kinematics(file_path="config/kinematics.yaml")
         .robot_description_semantic(file_path="config/kr70_r2100.srdf")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
+        .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
         .to_moveit_configs()
     )
 
@@ -191,7 +203,9 @@ def load_robot(context, *args, **kwargs):
     pilz_pipeline = {
             'pilz_industrial_motion_planner': {
             'planning_plugin': 'pilz_industrial_motion_planner/CommandPlanner', 
-            'request_adapters': 'default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints', 
+            # 'request_adapters': 'default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints', 
+            "request_adapters": """ """,
+            "start_state_max_bounds_error": 0.1,
             'default_planner_config': 'PTP', 
             'capabilities': 'pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService'
         }
@@ -205,8 +219,8 @@ def load_robot(context, *args, **kwargs):
         parameters=[
             moveit_config.to_dict(),
             planning_scene_parameters,
-            ompl_planning_pipeline_config,
-            # pilz_pipeline,
+            # ompl_planning_pipeline_config,
+            pilz_pipeline,
             {"use_sim_time": use_sim_time}
         ]
     )
@@ -216,6 +230,46 @@ def load_robot(context, *args, **kwargs):
             target_action=robotiq_controller,
             on_exit=[move_group_node]
         )
+    )
+
+    # *** PLANNING CONTEXT *** #
+    # Robot description SRDF
+    robot_description_semantic_config = load_file(moveit_pkg, "config/kr70_r2100.srdf")
+    robot_description_semantic = {"robot_description_semantic": robot_description_semantic_config}
+
+    # Kinematics YAML file
+    kinematics_yaml = load_yaml(get_package_share_directory(moveit_pkg), "config/kinematics.yaml")
+
+    # MoveJ ACTION:
+    moveJ_interface = Node(
+        package="control_scripts",
+        executable="move_joints",
+        output="screen",
+        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
+    )
+
+    # MoveJ ACTION:
+    moveG_interface = Node(
+        package="control_scripts",
+        executable="move_gripper",
+        output="screen",
+        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
+    )
+
+    # MoveJ ACTION:
+    moveL_interface = Node(
+        package="control_scripts",
+        executable="move_linear",
+        output="screen",
+        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
+    )
+
+    # MoveJ ACTION:
+    moveXYZW_interface = Node(
+        package="control_scripts",
+        executable="move_xyzw",
+        output="screen",
+        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
     )
 
     return [
@@ -260,7 +314,11 @@ def load_robot(context, *args, **kwargs):
         robot_state_publisher,
         spawn_robot_node,
         load_controllers,
-        load_move_group
+        load_move_group,
+        moveG_interface,
+        moveJ_interface,
+        moveL_interface,
+        moveXYZW_interface
     ]
 
 def generate_launch_description():
