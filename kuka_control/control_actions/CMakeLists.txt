@@ -10,11 +10,12 @@ find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/JointPose.msg"
-  "action/MoveJ.action"
-  "action/MoveG.action"
-  "action/MoveXYZW.action"
-  "action/MoveL.action"
+  "msg/Action.msg"
+  "msg/Joints.msg"
+  "msg/Specs.msg"
+  "msg/Xyz.msg"
+  "msg/Xyzypr.msg"
+  "action/Move.action"
 )
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

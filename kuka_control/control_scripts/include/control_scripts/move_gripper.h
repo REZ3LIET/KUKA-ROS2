@@ -28,7 +28,8 @@
 # IFRA-Cranfield (2023) ROS 2 Sim-to-Real Robot Control. URL: https://github.com/IFRA-Cranfield/ros2_SimRealRobotControl.
 */
 
-#include "control_scripts/move_joints.h"
+#ifndef MOVEG_H
+#define MOVEG_H
 
 // Include standard libraries:
 #include <string>
@@ -45,72 +46,14 @@
 // Include the move ROS2 ACTION:
 #include "control_actions/action/move.hpp"
 
-// Include the ROS2 MSG messages:
-#include "control_actions/msg/joints.hpp"
+// ROS 2 MSG -> SPECIFICATIONS:
+#include "control_actions/msg/specs.hpp"
 
-// Declaration of GLOBAL VARIABLES --> CONSTANT VALUES for angle transformation (DEG->RAD):
-const double pi = 3.14159265358979;
-const double k = pi/180.0;
-
-// MoveJ:
-MoveJSTRUCT MoveJAction (control_actions::msg::Joints JOINTS, std::vector<double> JP, control_actions::msg::Specs SPECIFICATIONS){
-    
-    MoveJSTRUCT RESULT;
-
-    // 1. Obtain variables -> Convert to VECTOR:
-    std::vector<double> GOAL;
-    GOAL.push_back(JOINTS.joint1);
-    GOAL.push_back(JOINTS.joint2);
-    GOAL.push_back(JOINTS.joint3);
-    if (JP.size() >= 4){
-        GOAL.push_back(JOINTS.joint4);
-    };
-    if (JP.size() >= 5){
-        GOAL.push_back(JOINTS.joint5);
-    };
-    if (JP.size() >= 6){
-        GOAL.push_back(JOINTS.joint6);
-    };
-
-    // 2. CALCULATIONS -> Joint Limits:
-    auto LimitsOK = true;
-    std::vector<std::string> jointLIST;
-    for (int i=0; i<JP.size(); i++){
-        
-        if (GOAL[i] <= SPECIFICATIONS.robot_max[i] && GOAL[i] >= SPECIFICATIONS.robot_min[i]) {
-        // Do nothing, check complete.
-        } else {
-            LimitsOK = false;
-            jointLIST.push_back("joint" + std::to_string(i+1));
-        };
-
-    };
-
-    // 3. SET TARGET and RETURN:
-    if (LimitsOK == true){
-
-        for (int i=0; i<JP.size(); i++){
-            JP[i] = GOAL[i] * k;
-        };
-
-        RESULT.RES = "LIMITS: OK";
-        RESULT.JP = JP;
-
-    } else {
-
-        std::string OUTPUT = "[";
-        for (int k=0; k<jointLIST.size(); k++){
-            OUTPUT = OUTPUT + jointLIST[k] + ", ";
-        };
-        OUTPUT.pop_back();
-        OUTPUT.pop_back();
-        OUTPUT = OUTPUT + "]";
-
-        RESULT.RES = "For the requested input, the following joints are outside their limit -> " + OUTPUT;
-        RESULT.JP = JP;
-    }
-
-    // 4. RETURN RESULT:
-    return(RESULT);
-
+struct MoveGSTRUCT {
+  std::string RES;
+  std::vector<double> JP;
 };
+
+MoveGSTRUCT MoveGAction(double VAL, std::vector<double> JP, control_actions::msg::Specs SPECIFICATIONS);
+
+#endif /* MOVEG_H */

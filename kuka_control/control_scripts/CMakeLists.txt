@@ -13,53 +13,31 @@ find_package(control_actions REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(std_msgs REQUIRED)
 
-add_executable(move_joints src/move_joints.cpp)
+# Add include directories:
+include_directories(include)
+
+# Add executable:
+add_executable(
+  move_robot
+  src/move_gripper.cpp
+  src/move_linear.cpp
+  src/move_joints.cpp
+  src/move_xyzw.cpp
+  src/move_robot.cpp
+)
+# Install executable:
+install(TARGETS
+  move_robot
+  DESTINATION lib/${PROJECT_NAME}
+)
 ament_target_dependencies(
-  move_joints
+  move_robot
+  rclcpp
   moveit_ros_planning_interface
   std_msgs
-  rclcpp
   rclcpp_action
-  control_actions)
-install(TARGETS
-  move_joints
-  DESTINATION lib/${PROJECT_NAME})
-
-add_executable(move_gripper src/move_gripper.cpp)
-  ament_target_dependencies(
-  move_gripper
-  moveit_ros_planning_interface
-  std_msgs
-  rclcpp
-  rclcpp_action
-  control_actions)
-install(TARGETS
-  move_gripper
-  DESTINATION lib/${PROJECT_NAME})
-
-add_executable(move_linear src/move_linear.cpp)
-  ament_target_dependencies(
-  move_linear
-  moveit_ros_planning_interface
-  std_msgs
-  rclcpp
-  rclcpp_action
-  control_actions)
-install(TARGETS
-  move_linear
-  DESTINATION lib/${PROJECT_NAME})
-
-add_executable(move_xyzw src/move_xyzw.cpp)
-  ament_target_dependencies(
-  move_xyzw
-  moveit_ros_planning_interface
-  std_msgs
-  rclcpp
-  rclcpp_action
-  control_actions)
-install(TARGETS
-  move_xyzw
-  DESTINATION lib/${PROJECT_NAME})
+  control_actions
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -272,6 +272,13 @@ def load_robot(context, *args, **kwargs):
         parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
     )
 
+    MoveInterface = Node(
+        package="control_scripts",
+        executable="move_robot",
+        output="screen",
+        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": True}, {"ENV_PARAM": "gazebo"}],
+    )
+
     return [
         DeclareLaunchArgument(
             name="use_sim_time",
@@ -315,10 +322,11 @@ def load_robot(context, *args, **kwargs):
         spawn_robot_node,
         load_controllers,
         load_move_group,
-        moveG_interface,
-        moveJ_interface,
-        moveL_interface,
-        moveXYZW_interface
+        # moveG_interface,
+        # moveJ_interface,
+        # moveL_interface,
+        # moveXYZW_interface
+        MoveInterface
     ]
 
 def generate_launch_description():

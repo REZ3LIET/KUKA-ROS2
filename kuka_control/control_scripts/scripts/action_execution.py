@@ -17,432 +17,327 @@
 #                                                                                       #
 #  IFRA Group - Cranfield University                                                    #
 #  AUTHORS: Mikel Bueno Viso - Mikel.Bueno-Viso@cranfield.ac.uk                         #
-#           Seemal Asif      - s.asif@cranfield.ac.uk                                   #
-#           Phil Webb        - p.f.webb@cranfield.ac.uk                                 #
+#           Dr. Seemal Asif  - s.asif@cranfield.ac.uk                                   #
+#           Prof. Phil Webb  - p.f.webb@cranfield.ac.uk                                 #
 #                                                                                       #
-#  Date: January, 2023.                                                                 #
+#  Date: October, 2024.                                                                 #
 #                                                                                       #
 # ===================================== COPYRIGHT ===================================== #
 
 # ======= CITE OUR WORK ======= #
 # You can cite our work with the following statement:
-# (TBD).
+# IFRA-Cranfield (2023) ROS 2 Sim-to-Real Robot Control. URL: https://github.com/IFRA-Cranfield/ros2_SimRealRobotControl.
 
-# ********** ros2_execution.py ********** #
-# This .py script takes the sequence of Robot Triggers defined
-
-# Import required libraries:
+# ===== IMPORT REQUIRED COMPONENTS ===== #
+# System functions and classes:
+import sys, os, yaml, time
+# Required to include ROS2 and its components:
 import rclpy
-from rclpy.action import ActionClient
-from rclpy.node import Node
-from std_msgs.msg import String
-import os
-import ast
+from ament_index_python.packages import get_package_share_directory
 import time
+# Required to include ROS2 and its components:
+import rclpy
+from rclpy.node import Node
+from rclpy.action import ActionClient
 
-# Import ACTIONS:
-from control_actions.action import MoveJ
-from control_actions.action import MoveL
-from control_actions.action import MoveXYZW
-from control_actions.action import MoveG
+# Import /Move and /RobMove ROS2 Actions:
+from control_actions.action import Move
+# IMPORT ROS2 Custom Messages:
+from control_actions.msg import Action
+from control_actions.msg import Joints
+from control_actions.msg import Xyz
+from control_actions.msg import Xyzypr
 
-# Import MESSAGES:
-from control_actions.msg import JointPose
+# ========================================================================================= #
+# =================================== CLASSES/FUNCTIONS =================================== #
+# ========================================================================================= #
 
-# Import MultiThreadedExecutor:
-from rclpy.executors import MultiThreadedExecutor
+# ========================================================================================= #  
 
-# Define GLOBAL VARIABLE -> RES:
-RES = "null"
+RES_DICT = {}
+RES_DICT["Success"] = False
+RES_DICT["Message"] = "null"
+RES_DICT["ExecTime"] = -1.0
 
-# Define CLASSES for EACH ACTION:
-
-# 1. MoveJ:
-class MoveJclient(Node):
-    
+class MoveCLIENT(Node):
     def __init__(self):
-        # 1. Initialise node:
-        super().__init__('MoveJ_client')
-        self._action_client = ActionClient(self, MoveJ, 'MoveJ')
-        # 2. Wait for MoveJ server to be available:
-        print ("Waiting for MoveJ action server to be available...")
+
+        super().__init__('ros2srrc_Move_Client')
+        self._action_client = ActionClient(self, Move, 'Move')
+
+        print("[CLIENT - robot.py]: Initialising ROS2 /Move Action Client!")
+        print("[CLIENT - robot.py]: Waiting for /Move ROS2 ActionServer to be available...")
         self._action_client.wait_for_server()
-        print ("MoveJ ACTION SERVER detected.")
-    
-    def send_goal(self, GoalJP, JointSPEED):
-        # 1. Assign variables:
-        goal_msg = MoveJ.Goal()
-        goal_msg.goal = GoalJP
-        goal_msg.speed = JointSPEED
-        # 2. ACTION CALL:
-        self._send_goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
+        print("[CLIENT - robot.py]: /Move ACTION SERVER detected, ready!")
+        print("")
+
+    def send_goal(self, ACTION):
+
+        goal_msg = Move.Goal()
+        goal_msg.action = ACTION.action
+        goal_msg.speed = ACTION.speed
+        goal_msg.movej = ACTION.movej
+        goal_msg.movel = ACTION.movel
+        goal_msg.moverp = ACTION.moverp
+        goal_msg.moveg = ACTION.moveg
+        
+        self._send_goal_future = self._action_client.send_goal_async(goal_msg)
         self._send_goal_future.add_done_callback(self.goal_response_callback)
 
     def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
+        
+        self.goal_handle = future.result()
+
+        if not self.goal_handle.accepted:
+            print('[CLIENT - robot.py]: Move ACTION CALL -> GOAL has been REJECTED.')
             return
-        self.get_logger().info('Goal accepted :)')
-        self._get_result_future = goal_handle.get_result_async()
+        
+        print('[CLIENT - robot.py]: Move ACTION CALL -> GOAL has been ACCEPTED.')
+
+        self._get_result_future = self.goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
-    
+
     def get_result_callback(self, future):
-        global RES
-        # 1. Assign RESULT variable:
-        result = future.result().result
-        RES = result.result
-        # 2. Print RESULT:
-        print ("MoveJ ACTION CALL finished.") 
+        
+        global RES_DICT
+        
+        RESULT = future.result().result  
+        RES_DICT["Message"] = RESULT.result 
 
-    def feedback_callback(self, feedback_msg):
-        # 1. Assign FEEDBACK variable:
-        feedback = feedback_msg.feedback
-        # NO FEEDBACK NEEDED IN MoveJ ACTION CALL.
+        if "FAILED" in RES_DICT["Message"]:
+            RES_DICT["Success"] = False
+        else:
+            RES_DICT["Success"] = True
+            
+# =============================================================================== #
+# ROBOT class, to execute any robot movement:
 
-# 2. MoveL:
-class MoveLclient(Node):
-    
+class RBT():
+
     def __init__(self):
-        # 1. Initialise node:
-        super().__init__('MoveL_client')
-        self._action_client = ActionClient(self, MoveL, 'MoveL')
-        # 2. Wait for MoveL server to be available:
-        print ("Waiting for MoveL action server to be available...")
-        self._action_client.wait_for_server()
-        print ("MoveL ACTION SERVER detected.")
+
+        # Initialise /Move and /RobMove Action Clients:
+        self.MoveClient = MoveCLIENT()
+        self.EXECUTING = ""
+
+    def Move_EXECUTE(self, ACTION):
+
+        global RES_DICT
+        self.EXECUTING = "Move"
+        
+        T_start = time.time()
+
+        # Initialise RES_DICT:
+        RES_DICT["Success"] = False
+        RES_DICT["Message"] = "null"
+        RES_DICT["ExecTime"] = -1.0
+        
+        self.MoveClient.send_goal(ACTION)
+        while rclpy.ok():
+            rclpy.spin_once(self.MoveClient)
+
+            if (RES_DICT["Message"] != "null"):
+                break
+
+        print('[CLIENT - robot.py]: Move ACTION EXECUTED -> Result: ' + RES_DICT["Message"])
+        print("")
+        
+        T_end = time.time()
+        T = round((T_end - T_start), 4)
+        RES_DICT["ExecTime"] = T
+
+        self.EXECUTING = ""
+        return(RES_DICT)
     
-    def send_goal(self, GoalLx, GoalLy, GoalLz, JointSPEED):
-        # 1. Assign variables:
-        goal_msg = MoveL.Goal()
-        goal_msg.movex = GoalLx
-        goal_msg.movey = GoalLy
-        goal_msg.movez = GoalLz
-        goal_msg.speed = JointSPEED
-        # 2. ACTION CALL:
-        self._send_goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
+    def CANCEL(self):
+        
+        print('[CLIENT - robot.py]: MOVEMENT CANCEL REQUEST. Stopping robot...')
+        
+        try:
+            if self.EXECUTING == "Move":
+                self.MoveClient.goal_handle.cancel_goal_async()
+            else:
+                None
+        except AttributeError:
+            pass
+        
+        print('[CLIENT - robot.py]: MOVEMENT CANCEL REQUEST. Robot stopped.')
+        print("")
 
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
-            return
-        self.get_logger().info('Goal accepted :)')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
+# Get SEQUENCE from {program}.yaml file:
+def getSEQUENCE(packageNAME, yamlNAME):
+
+    RESULT = {}
+
+    PATH = os.path.join(get_package_share_directory(packageNAME), 'programs')
+    yamlPATH = PATH + "/" + yamlNAME + ".yaml"
+
+    if not os.path.exists(yamlPATH):
+        RESULT["Success"] = False
+        return(RESULT)
     
-    def get_result_callback(self, future):
-        global RES
-        # 1. Assign RESULT variable:
-        result = future.result().result
-        RES = result.result
-        # 2. Print RESULT:
-        print ("MoveL ACTION CALL finished.")       
+    # Get sequence from YAML:
+    with open(yamlPATH, 'r') as YAML:
+        seqYAML = yaml.safe_load(YAML)
 
-    def feedback_callback(self, feedback_msg):
-        # 1. Assign FEEDBACK variable:
-        feedback = feedback_msg.feedback
-        # NO FEEDBACK NEEDED IN MoveL ACTION CALL.
-
-# 3. MoveXYZW:
-class MoveXYZWclient(Node):
+    RESULT["Sequence"] = seqYAML["Sequence"]
+    RESULT["Robot"] = seqYAML["Specifications"]["Robot"]
+    RESULT["EEType"] = seqYAML["Specifications"]["EndEffector"]
+    RESULT["EELink"] = seqYAML["Specifications"]["EELink"]
+    RESULT["Objects"] = seqYAML["Specifications"]["Objects"]
+    RESULT["Success"] = True
     
-    def __init__(self):
-        # 1. Initialise node:
-        super().__init__('MoveXYZW_client')
-        self._action_client = ActionClient(self, MoveXYZW, 'MoveXYZW')
-        # 2. Wait for MoveXYZW server to be available:
-        print ("Waiting for MoveXYZW action server to be available...")
-        self._action_client.wait_for_server()
-        print ("MoveXYZW ACTION SERVER detected.")
-    
-    def send_goal(self, GoalXYZWx, GoalXYZWy, GoalXYZWz, GoalXYZWyaw, GoalXYZWpitch, GoalXYZWroll, JointSPEED):
-        # 1. Assign variables:
-        goal_msg = MoveXYZW.Goal()
-        goal_msg.positionx = GoalXYZWx
-        goal_msg.positiony = GoalXYZWy
-        goal_msg.positionz = GoalXYZWz
-        goal_msg.yaw = GoalXYZWyaw
-        goal_msg.pitch = GoalXYZWpitch
-        goal_msg.roll = GoalXYZWroll
-        goal_msg.speed = JointSPEED
-        # 2. ACTION CALL:
-        self._send_goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
+    return(RESULT)
 
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
-            return
-        self.get_logger().info('Goal accepted :)')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
-    
-    def get_result_callback(self, future):
-        global RES
-        # 1. Assign RESULT variable:
-        result = future.result().result
-        RES = result.result
-        # 2. Print RESULT:
-        print ("MoveXYZW ACTION CALL finished.")     
+# ========================================================================================= #           
+# EVALUATE INPUT ARGUMENTS:
+def AssignArgument(ARGUMENT):
+    ARGUMENTS = sys.argv
+    for y in ARGUMENTS:
+        if (ARGUMENT + ":=") in y:
+            ARG = y.replace((ARGUMENT + ":="),"")
+            return(ARG)
 
-    def feedback_callback(self, feedback_msg):
-        # 1. Assign FEEDBACK variable:
-        feedback = feedback_msg.feedback
-        # NO FEEDBACK NEEDED IN MoveXYZW ACTION CALL.
-
-# 4. MoveG:
-class MoveGclient(Node):
-    
-    def __init__(self):
-        # 1. Initialise node:
-        super().__init__('MoveG_client')
-        self._action_client = ActionClient(self, MoveG, 'MoveG')
-        # 2. Wait for MoveG server to be available:
-        print ("Waiting for MoveG action server to be available...")
-        self._action_client.wait_for_server()
-        print ("MoveG ACTION SERVER detected.")
-    
-    def send_goal(self, GP):
-        # 1. Assign variables:
-        goal_msg = MoveG.Goal()
-        goal_msg.goal = GP
-        # 2. ACTION CALL:
-        self._send_goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
-
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
-            return
-        self.get_logger().info('Goal accepted :)')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
-    
-    def get_result_callback(self, future):
-        global RES
-        # 1. Assign RESULT variable:
-        result = future.result().result
-        RES = result.result
-        # 2. Print RESULT:
-        print ("MoveG ACTION CALL finished.")
-
-    def feedback_callback(self, feedback_msg):
-        # 1. Assign FEEDBACK variable:
-        feedback = feedback_msg.feedback
-        # NO FEEDBACK NEEDED IN MoveG ACTION CALL.
-
-# ==================================================================================================================================== #
-# ==================================================================================================================================== #
-# =============================================================== MAIN =============================================================== #
-# ==================================================================================================================================== #
-# ==================================================================================================================================== #
-
+# ========================================================================================= #
+# ========================================= MAIN ========================================== #
+# ========================================================================================= #
 def main(args=None):
     
-    # Import global variable RES:
-    global RES
-    
-    # 1. INITIALISE ROS NODE:
     rclpy.init(args=args)
 
-    MoveL_CLIENT = MoveLclient()
-    MoveJ_CLIENT = MoveJclient()
-    MoveG_CLIENT = MoveGclient()
-    MoveXYZW_CLIENT = MoveXYZWclient()
+    # PRINT - INIT:
+    print("==================================================")
+    print("ROS 2 Sim-to-Real Robot Control: Program Execution")
+    print("==================================================")
+    print("")
 
-    # Create NODE for LOGGING:
-    nodeLOG = rclpy.create_node('node_LOG')
-    seq = [
-        {'action': 'MoveJ', 'value': {'joint1': 0.0, 'joint2': 0.0, 'joint3': 0.0, 'joint4': 0.0, 'joint5': 0.0, 'joint6': 0.0}, 'speed': 1.0},
-        {'action': 'MoveJ', 'value': {'joint1': 0.0, 'joint2': -90.0, 'joint3': 90.0, 'joint4': 0.0, 'joint5': 0.0, 'joint6': 0.0}, 'speed': 1.0},
-        {'action': 'MoveJ', 'value': {'joint1': 0.0, 'joint2': -90.0, 'joint3': -90.0, 'joint4': 0.0, 'joint5': 0.0, 'joint6': 0.0}, 'speed': 1.0},
-        {'action': 'MoveXYZW', 'value': {'positionx': 0.4, 'positiony': 1.5, 'positionz': 0.8, 'yaw': 0.0, 'pitch': 0.0, 'roll': 0.0}, 'speed': 1.0}
+    # ASSIGN -> SEQUENCE:
+    SEQUENCE = [
+        {
+            "Type": "MoveJ",
+            "Speed": 1.0,
+            "Input": {"joint1": 0.0, "joint2": 0.0, "joint3": 0.0, "joint4": 0.0, "joint5": 0.0, "joint6": 0.0}
+        },
+        {
+            "Type": "MoveRP",
+            "Speed": 1.0,
+            "Input": {"x": 0.4, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+        }
     ]
 
-    # Log number of steps:
-    nodeLOG.get_logger().info("Number of steps -> " + str(len(seq)))
-    time.sleep(1)
-
-    # ================================= 4. SEQUENCE ================================= #
-    for i in range(0, len(seq)):
-        trigger = seq[i]
-        
-        if (trigger['action'] == 'MoveJ'):
-            
-            print("")
-            print("STEP NUMBER " + str(i) + " -> MoveJ:")
-            print(trigger['value'])
-
-            # Joint SPEED:
-            JointSPEED = trigger['speed']
-            if (JointSPEED <= 0 or JointSPEED > 1):
-                print ("Joint speed -> " + str(JointSPEED) + " not valid. Must be (0,1]. Assigned: 0.01")
-                JointSPEED = 0.01
-            else:
-                print("Joint speed -> " + str(JointSPEED))
-
-            JP = JointPose()
-            JP.joint1 = trigger['value']['joint1']
-            JP.joint2 = trigger['value']['joint2']
-            JP.joint3 = trigger['value']['joint3']
-            JP.joint4 = trigger['value']['joint4']
-            JP.joint5 = trigger['value']['joint5']
-            JP.joint6 = trigger['value']['joint6']
-            MoveJ_CLIENT.send_goal(JP, JointSPEED)
-
-            while rclpy.ok():
-                rclpy.spin_once(MoveJ_CLIENT)
-                if (RES != "null"):
-                    break
-
-            print ("Result of MoveJ ACTION CALL is -> { " + RES + " }")
-            
-            if (RES == "MoveJ:SUCCESS"):
-                print("MoveJ ACTION in step number -> " + str(i) + " successfully executed.")
-                RES = "null"
-            else:
-                print("MoveJ ACTION in step number -> " + str(i) + " failed.")
-                print("The program will be closed. Bye!")
-                nodeLOG.get_logger().info("ERROR: Program finished since MoveJ ACTION in step number -> " + str(i) + " failed.")
-                break
-
-        elif (trigger['action'] == 'MoveL'):
-            
-            print("")
-            print("STEP NUMBER " + str(i) + " -> MoveL:")
-            print(trigger['value'])
-
-            # Joint SPEED:
-            JointSPEED = trigger['speed']
-            if (JointSPEED <= 0 or JointSPEED > 1):
-                print ("Joint speed -> " + str(JointSPEED) + " not valid. Must be (0,1]. Assigned: 0.01")
-                JointSPEED = 0.01
-            else:
-                print("Joint speed -> " + str(JointSPEED))
-
-            MoveX = trigger['value']['movex']
-            MoveY = trigger['value']['movey']
-            MoveZ = trigger['value']['movez']
-            MoveL_CLIENT.send_goal(MoveX,MoveY,MoveZ, JointSPEED)
-            
-            while rclpy.ok():
-                rclpy.spin_once(MoveL_CLIENT)
-                if (RES != "null"):
-                    break
-            
-            print ("Result of MoveL ACTION CALL is -> { " + RES + " }")
-            
-            if (RES == "MoveL:SUCCESS"):
-                print("MoveL ACTION in step number -> " + str(i) + " successfully executed.")
-                RES = "null"
-            else:
-                print("MoveL ACTION in step number -> " + str(i) + " failed.")
-                print("The program will be closed. Bye!")
-                nodeLOG.get_logger().info("ERROR: Program finished since MoveL ACTION in step number -> " + str(i) + " failed.")
-                break
-
-        elif (trigger['action'] == 'MoveXYZW'):
-            
-            print("")
-            print("STEP NUMBER " + str(i) + " -> MoveXYZW:")
-            print(trigger['value'])
-
-            # Joint SPEED:
-            JointSPEED = trigger['speed']
-            if (JointSPEED <= 0 or JointSPEED > 1):
-                print ("Joint speed -> " + str(JointSPEED) + " not valid. Must be (0,1]. Assigned: 0.01")
-                JointSPEED = 0.01
-            else:
-                print("Joint speed -> " + str(JointSPEED))
-
-            positionx = trigger['value']['positionx']
-            positiony = trigger['value']['positiony']
-            positionz = trigger['value']['positionz']
-            yaw = trigger['value']['yaw']
-            pitch = trigger['value']['pitch']
-            roll = trigger['value']['roll']
-            
-            MoveXYZW_CLIENT.send_goal(positionx,positiony,positionz,yaw,pitch,roll, JointSPEED)
-            
-            while rclpy.ok():
-                rclpy.spin_once(MoveXYZW_CLIENT)
-                if (RES != "null"):
-                    break
-            
-            print ("Result of MoveXYZW ACTION CALL is -> { " + RES + " }")
-            
-            if (RES == "MoveXYZW:SUCCESS"):
-                print("MoveXYZW ACTION in step number -> " + str(i) + " successfully executed.")
-                RES = "null"
-            else:
-                print("MoveXYZW ACTION in step number -> " + str(i) + " failed.")
-                print("The program will be closed. Bye!")
-                nodeLOG.get_logger().info("ERROR: Program finished since MoveXYZW ACTION in step number -> " + str(i) + " failed.")
-                break
-
-        elif (trigger['action'] == 'GripperOpen'):
-            print("")
-            print("STEP NUMBER " + str(i) + " -> GripperOpen (MoveG).")
-
-            GP = 0.7
-            MoveG_CLIENT.send_goal(GP)
-            
-            while rclpy.ok():
-                rclpy.spin_once(MoveG_CLIENT)
-                if (RES != "null"):
-                    break
-            
-            print ("Result of MoveG ACTION CALL is -> { " + RES + " }")
-            
-            if (RES == "MoveG:SUCCESS"):
-                print("MoveG ACTION in step number -> " + str(i) + " successfully executed.")
-                RES = "null"
-            else:
-                print("MoveG ACTION in step number -> " + str(i) + " failed.")
-                print("The program will be closed. Bye!")
-                break
-
-        elif (trigger['action'] == 'GripperClose'):                
-            print("")
-            print("STEP NUMBER " + str(i) + " -> GripperClose (MoveG).")
-
-            GP = 0.0
-            MoveG_CLIENT.send_goal(GP)
-            
-            while rclpy.ok():
-                rclpy.spin_once(MoveG_CLIENT)
-                if (RES != "null"):
-                    break
-            
-            print ("Result of MoveG ACTION CALL is -> { " + RES + " }")
-            
-            if (RES == "MoveG:SUCCESS"):
-                print("MoveG ACTION in step number -> " + str(i) + " successfully executed.")
-                RES = "null"
-            else:
-                print("MoveG ACTION in step number -> " + str(i) + " failed.")
-                print("The program will be closed. Bye!")
-                break
-
-        else:
-            print("Step number " + str(i) + " -> Action type not identified. Please check.")
-            print("The program will be closed. Bye!")
-            nodeLOG.get_logger().info("ERROR: Program finished since ACTION NAME in step number -> " + str(i) + " was not identified.")
-            break
-
-        #time.sleep(1)
-
+    # LOAD ROBOT/EE MOVEMENT PYTHON CLIENTS:
+    print("ROBOT: ")
+    RobotClient = RBT()
+    print("Loaded.")
     print("")
-    print("SEQUENCE EXECUTION FINISHED!")
-    print("Program will be closed. Bye!")
-    nodeLOG.get_logger().info("SUCESS: Program execution sucessfully finished.")
-    nodeLOG.destroy_node()
-    print("Closing... BYE!")
-        
+    
+    print("END-EFFECTOR:")
+    print("")
+
+    print("============================================================")
+    print("============================================================")
+    print("Executing sequence...")
+    print("")
+
+    # Initialise -> RES VARIABLE:
+    RES = None
+
+    # ==== EXECUTE PROGRAM, STEP BY STEP ===== #
+    for x in SEQUENCE:
+        try:
+
+            print("============================================================")
+
+            if x["Type"] == "MoveJ":
+                ACTION = Action()
+                ACTION.action = "MoveJ"
+                ACTION.speed = x["Speed"]
+
+                INPUT = Joints()
+                INPUT.joint1 = x["Input"]["joint1"]
+                INPUT.joint2 = x["Input"]["joint2"]
+                INPUT.joint3 = x["Input"]["joint3"]
+                INPUT.joint4 = x["Input"]["joint4"]
+                INPUT.joint5 = x["Input"]["joint5"]
+                INPUT.joint6 = x["Input"]["joint6"]
+                ACTION.movej = INPUT
+
+                RES = RobotClient.Move_EXECUTE(ACTION)
+
+            elif x["Type"] == "MoveL":
+                ACTION = Action()
+                ACTION.action = "MoveL"
+                ACTION.speed = x["Speed"]
+
+                INPUT = Xyz()
+                INPUT.x = x["Input"]["x"]
+                INPUT.y = x["Input"]["y"]
+                INPUT.z = x["Input"]["z"]
+                ACTION.movel = INPUT
+
+                RES = RobotClient.Move_EXECUTE(ACTION)
+
+            elif x["Type"] == "MoveRP":
+                ACTION = Action()
+                ACTION.action = "MoveRP"
+                ACTION.speed = x["Speed"]
+
+                INPUT = Xyzypr()
+                INPUT.x = x["Input"]["x"]
+                INPUT.y = x["Input"]["y"]
+                INPUT.z = x["Input"]["z"]
+                INPUT.pitch = x["Input"]["pitch"]
+                INPUT.yaw = x["Input"]["yaw"]
+                INPUT.roll = x["Input"]["roll"]
+                ACTION.moverp = INPUT
+
+                RES = RobotClient.Move_EXECUTE(ACTION)
+
+            elif x["Type"] == "MoveG":
+                ACTION = Action()
+                ACTION.action = "MoveG"
+                ACTION.speed = x["Speed"]
+                ACTION.moveg = x["Input"]["value"]
+
+                RES = RobotClient.Move_EXECUTE(ACTION)
+
+            else:
+                print("ERROR: ACTION TYPE -> " + x["Type"] + " unknown.")
+                print("Closing program... BYE!")
+                exit()
+
+            # CHECK if STEP EXECUTION WAS SUCCESSFUL:
+            print("")
+            
+            if RES["Success"] == False:
+                print("ERROR: Execution FAILED!")
+                print("Message -> " + RES["Message"])
+                print("")
+                print("Closing... BYE!")
+                exit()
+
+            else:
+                print("Execution SUCCESSFUL!")
+                print("Message -> " + RES["Message"])
+                print("")
+                
+        except KeyboardInterrupt:
+            
+            # CANCEL ANY ONGOING ROBOT MOVEMENTS:
+            RobotClient.CANCEL()
+
+            print("Sequence execution manually interrupted and cancelled.")
+            print("Closing... BYE!")
+            exit()
+
+    # ==== FINISH ===== #
+    print("")
+    print("")
+    print("Sequence successfully executed. Closing Program... Bye!")
+    print("=======================================================")
+
+    rclpy.shutdown()
+    exit()
 
 if __name__ == '__main__':
     main()
