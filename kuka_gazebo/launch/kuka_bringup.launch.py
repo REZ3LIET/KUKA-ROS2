@@ -219,7 +219,7 @@ def load_robot(context, *args, **kwargs):
         parameters=[
             moveit_config.to_dict(),
             planning_scene_parameters,
-            # ompl_planning_pipeline_config,
+            ompl_planning_pipeline_config,
             pilz_pipeline,
             {"use_sim_time": use_sim_time}
         ]
@@ -239,38 +239,6 @@ def load_robot(context, *args, **kwargs):
 
     # Kinematics YAML file
     kinematics_yaml = load_yaml(get_package_share_directory(moveit_pkg), "config/kinematics.yaml")
-
-    # MoveJ ACTION:
-    moveJ_interface = Node(
-        package="control_scripts",
-        executable="move_joints",
-        output="screen",
-        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
-    )
-
-    # MoveJ ACTION:
-    moveG_interface = Node(
-        package="control_scripts",
-        executable="move_gripper",
-        output="screen",
-        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
-    )
-
-    # MoveJ ACTION:
-    moveL_interface = Node(
-        package="control_scripts",
-        executable="move_linear",
-        output="screen",
-        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
-    )
-
-    # MoveJ ACTION:
-    moveXYZW_interface = Node(
-        package="control_scripts",
-        executable="move_xyzw",
-        output="screen",
-        parameters=[robot_description, robot_description_semantic, kinematics_yaml, {"use_sim_time": use_sim_time}],
-    )
 
     MoveInterface = Node(
         package="control_scripts",
@@ -322,10 +290,6 @@ def load_robot(context, *args, **kwargs):
         spawn_robot_node,
         load_controllers,
         load_move_group,
-        # moveG_interface,
-        # moveJ_interface,
-        # moveL_interface,
-        # moveXYZW_interface
         MoveInterface
     ]
 

@@ -311,7 +311,7 @@ private:
             
             // 3. Assign SPEED and PLANNING METHOD (PTP, LIN, CIRC):
             move_group_interface_EE.setMaxVelocityScalingFactor(goal->speed);
-            move_group_interface_EE.setPlannerId("PTP");
+            move_group_interface_EE.setPlannerId("geometric::RRTConnect");
 
             // 4. PLAN:
             if (MoveGRES.RES == "LIMITS: OK"){
