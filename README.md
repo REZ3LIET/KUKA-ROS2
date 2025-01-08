@@ -57,29 +57,52 @@ Before you begin, ensure you have met the following requirements:
 
 ## Usage
 
-![Kuka in Fortress](./readme_data/kuka_gazebo_ign.png)
+1. Launch Kuka
 
-To launch the KUKA robot simulation, use the following commands:
-```
-ros2 launch kuka_gazebo kuka_bringup.launch.py \
-    'ign_gz:=True' \
-    'use_sime_time:=True' \
-    'robot_name:=kuka_arm' \
-    'namespace:=""' \
-    'gripper_name:=""' \
-    'position_x:=0.0' \
-    'position_y:=0.0' \
-    'orientation_yaw:=0.0'
-```
-### Launch Parameter Definitions:
-- ign_gz (Optional): To launch Gazebo [default: 'True']
-- use_sime_time (Optional): Use simulator time [default: 'True']
-- robot_name (Optional): Name of the robot [default: 'kuka_arm']
-- namespace (Optional): Namespace for the robot [default: '']
-- gripper_name (Optional): Name of gripper to use [default: ''] Options=("", "robotiq_2f_85", "robotiq_2f_140")
-- position_x (Optional): X position to spawn the robot [default: '0.0']
-- position_y (Optional): Y position to spawn the robot [default: '0.0']
-- orientation_yaw (Optional): Yaw angle to spawn robot [default: '0.0']
+    ![Kuka in Fortress](./readme_data/kuka_gazebo_ign.png)
+
+    To launch the KUKA robot simulation, use the following commands:
+    ```bash
+    ros2 launch kuka_gazebo kuka_bringup.launch.py \
+        'ign_gz:=True' \
+        'use_sime_time:=True' \
+        'robot_name:=kuka_arm' \
+        'namespace:=""' \
+        'gripper_name:=""' \
+        'position_x:=0.0' \
+        'position_y:=0.0' \
+        'orientation_yaw:=0.0'
+    ```
+    **Launch Parameter Definitions**:
+    - ign_gz (Optional): To launch Gazebo [default: 'True']
+    - use_sime_time (Optional): Use simulator time [default: 'True']
+    - robot_name (Optional): Name of the robot [default: 'kuka_arm']
+    - namespace (Optional): Namespace for the robot [default: '']
+    - gripper_name (Optional): Name of gripper to use [default: ''] Options=("", "robotiq_2f_85", "robotiq_2f_140")
+    - position_x (Optional): X position to spawn the robot [default: '0.0']
+    - position_y (Optional): Y position to spawn the robot [default: '0.0']
+    - orientation_yaw (Optional): Yaw angle to spawn robot [default: '0.0']
+
+2. Launch Multiple Kuka
+
+    ![Multiple Kuka in Fortress](./readme_data/multi_kuka_ign.png)
+
+    To launch multiple KUKA robots simulation, firstly modify `robot_list` in [multi_kuka_bringup.launch.py](./kuka_gazebo/launch/multi_kuka_bringup.launch.py) and then launch the file using:
+
+    ```bash
+    ros2 launch kuka_gazebo multi_kuka_bringup.launch.py
+    ```
+
+3. Control Kuka (Python)
+
+    ![Kuka Control Python](./readme_data/kuka_control.gif)
+
+    To control the robot, Action server has been set up as `/Move`. To send the commands to the robot refer and/or execute [action_execution.py:main](./kuka_control/control_scripts/scripts/action_execution.py)
+
+    ```bash
+    cd kuka_control/control_scripts/scripts
+    python3 action_execution.py
+    ```
 
 ## Changelog
 
