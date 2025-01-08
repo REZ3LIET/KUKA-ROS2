@@ -106,7 +106,7 @@ Before you begin, ensure you have met the following requirements:
 
 ## Changelog
 
-All notable changes to this project will be documented in the [CHANGELOG.md](CHANGELOG.md).
+All changes to this project will be documented in the [CHANGELOG.md](CHANGELOG.md).
 See the changelog for detailed information about the project's history, including new features, bug fixes, and updates.
 
 ## License
