@@ -81,16 +81,24 @@ ros2 launch kuka_gazebo kuka_bringup.launch.py \
 - position_y (Optional): Y position to spawn the robot [default: '0.0']
 - orientation_yaw (Optional): Yaw angle to spawn robot [default: '0.0']
 
+## Changelog
+
+All notable changes to this project will be documented in the [CHANGELOG.md](CHANGELOG.md).
+See the changelog for detailed information about the project's history, including new features, bug fixes, and updates.
+
 ## License
 This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICENSE) file for details.
 
 
 ## Acknowledgements
-- The URDF model for the KUKA robot was taken from [kuka_robot_descriptions](https://github.com/kroshu/kuka_robot_descriptions). Specifically, it is located in `kuka_robot_descriptions/kuka_iontec_support/urdf/`. 
-- The descriptions of Robotiq grippers were taken from [PickNikRobotics' Github](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main)
-- [ROS 2](https://index.ros.org/doc/ros2/)
-- [Gazebo](https://gazebosim.org/docs/latest/getstarted/)
-- [MoveIt 2](https://moveit.picknik.ai/humble/index.html)
+- The **URDF model** for the KUKA robot was taken from the [kuka_robot_descriptions repository](https://github.com/kroshu/kuka_robot_descriptions). Specifically, it is located in `kuka_robot_descriptions/kuka_iontec_support/urdf/`. 
+- The **descriptions of Robotiq grippers** were taken from the [PickNik Robotics' GitHub repository](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main).
+- The **functionality to control the robot via Actions** was borrowed from the following repositories:
+  - [ros2_RobotSimulation](https://github.com/IFRA-Cranfield/ros2_RobotSimulation/tree/humble) by IFRA-Cranfield.
+  - [ros2_SimRealRobotControl](https://github.com/IFRA-Cranfield/ros2_SimRealRobotControl) by IFRA-Cranfield.
+- [ROS 2](https://index.ros.org/doc/ros2/) for the framework and tools supporting robot development.
+- [Gazebo](https://gazebosim.org/docs/latest/getstarted/) for the simulation environment.
+- [MoveIt 2](https://moveit.picknik.ai/humble/index.html) for motion planning and control.
 
 
 Thank you to the original authors for providing these valuable resources.
