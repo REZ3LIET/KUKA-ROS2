@@ -25,7 +25,7 @@ Before you begin, ensure you have met the following requirements:
 1. **Clone the Repository**
 
     ```bash
-    git clone --branch ignition-gazebo https://github.com/REZ3LIET/KUKA-ROS2.git
+    git clone https://github.com/REZ3LIET/KUKA-ROS2.git
     cd KUKA-ROS2
     ```
 
