@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(kuka_gazebo)
+project(kuka_description)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,10 +7,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ign_ros2_control REQUIRED)
-find_package(ros_gz REQUIRED)
-find_package(xacro REQUIRED)
-find_package(robotiq_description REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -28,9 +24,8 @@ if(BUILD_TESTING)
 endif()
 
 install(DIRECTORY
-  config
-  launch
-  world
+  meshes
+  urdf
   DESTINATION share/${PROJECT_NAME})
 
 ament_package()
