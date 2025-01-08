@@ -213,16 +213,26 @@ def main(args=None):
 
     # ASSIGN -> SEQUENCE:
     SEQUENCE = [
-        {
-            "Type": "MoveJ",
-            "Speed": 1.0,
-            "Input": {"joint1": 0.0, "joint2": 0.0, "joint3": 0.0, "joint4": 0.0, "joint5": 0.0, "joint6": 0.0}
-        },
+        # {
+        #     "Type": "MoveJ",
+        #     "Speed": 1.0,
+        #     "Input": {"joint1": 0.0, "joint2": -90.0, "joint3": -90.0, "joint4": 0.0, "joint5": 0.0, "joint6": 0.0}
+        # },
         {
             "Type": "MoveRP",
             "Speed": 1.0,
             "Input": {"x": 0.4, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
-        }
+        },
+        {
+            "Type": "MoveG",
+            "Speed": 1.0,
+            "Input": {"value": 0.0}
+        },
+        {
+            "Type": "MoveRP",
+            "Speed": 1.0,
+            "Input": {"x": 0.8, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+        },
     ]
 
     # LOAD ROBOT/EE MOVEMENT PYTHON CLIENTS:
@@ -320,7 +330,8 @@ def main(args=None):
                 print("Execution SUCCESSFUL!")
                 print("Message -> " + RES["Message"])
                 print("")
-                
+
+            time.sleep(2)
         except KeyboardInterrupt:
             
             # CANCEL ANY ONGOING ROBOT MOVEMENTS:

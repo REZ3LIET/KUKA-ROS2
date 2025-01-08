@@ -285,9 +285,16 @@ private:
             
             // 1. Define POSE VECTOR:
             auto POSE = move_group_interface_ROB.getCurrentPose();
+            RCLCPP_INFO(this->get_logger(), "Current POSE before the new MoveXYZW was:");
+            RCLCPP_INFO(this->get_logger(), "POSITION -> (x = %.2f, y = %.2f, z = %.2f)", POSE.pose.position.x, POSE.pose.position.y,POSE.pose.position.z);
+            RCLCPP_INFO(this->get_logger(), "ORIENTATION (quaternion) -> (x = %.2f, y = %.2f, z = %.2f, w = %.2f)", POSE.pose.orientation.x, POSE.pose.orientation.y,POSE.pose.orientation.z,POSE.pose.orientation.w);
+
             
             // 2. CALL MoveRPAction for CALCULATIONS:
             auto TARGET_POSE = MoveRPAction(goal->moverp, POSE);
+            RCLCPP_INFO(get_logger(), "Received a POSE GOAL request:");
+            RCLCPP_INFO(this->get_logger(), "POSITION -> (x = %.2f, y = %.2f, z = %.2f)", TARGET_POSE.position.x, TARGET_POSE.position.y, TARGET_POSE.position.z);
+            RCLCPP_INFO(this->get_logger(), "ORIENTATION (quaternion) -> (x = %.2f, y = %.2f, z = %.2f, w = %.2f)", TARGET_POSE.orientation.x, TARGET_POSE.orientation.y, TARGET_POSE.orientation.z, TARGET_POSE.orientation.w);
             move_group_interface_ROB.setPoseTarget(TARGET_POSE);
             
             // 3. Assign SPEED and PLANNING METHOD (PTP, LIN, CIRC):
@@ -419,7 +426,7 @@ int main(int argc, char ** argv)
     // 1. ROBOT:
     if (param_ROB != "none"){        
         move_group_interface_ROB = MoveGroupInterface(node2, param_ROB);
-        // move_group_interface_ROB.setPlanningPipelineId("move_group");
+        move_group_interface_ROB.setPlanningPipelineId("pilz_industrial_motion_planner");
 
         move_group_interface_ROB.setMaxVelocityScalingFactor(1.0);
         move_group_interface_ROB.setMaxAccelerationScalingFactor(1.0);
@@ -430,7 +437,7 @@ int main(int argc, char ** argv)
     // 2. END-EFFECTOR:
     if (param_EE != "none"){
         move_group_interface_EE = MoveGroupInterface(node2, param_EE);
-        // move_group_interface_EE.setPlanningPipelineId("move_group");
+        move_group_interface_EE.setPlanningPipelineId("ompl");
         move_group_interface_EE.setMaxVelocityScalingFactor(1.0);
         move_group_interface_EE.setMaxAccelerationScalingFactor(1.0);
         joint_model_group_EE = move_group_interface_EE.getCurrentState()->getJointModelGroup(param_EE);
