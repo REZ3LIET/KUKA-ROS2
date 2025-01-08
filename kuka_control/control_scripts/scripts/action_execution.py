@@ -204,25 +204,9 @@ def AssignArgument(ARGUMENT):
 def main(args=None):
     
     rclpy.init(args=args)
-
-    # PRINT - INIT:
-    print("==================================================")
-    print("ROS 2 Sim-to-Real Robot Control: Program Execution")
-    print("==================================================")
-    print("")
-
     # ASSIGN -> SEQUENCE:
+    time.sleep(2)
     SEQUENCE = [
-        # {
-        #     "Type": "MoveJ",
-        #     "Speed": 1.0,
-        #     "Input": {"joint1": 0.0, "joint2": -90.0, "joint3": -90.0, "joint4": 0.0, "joint5": 0.0, "joint6": 0.0}
-        # },
-        {
-            "Type": "MoveRP",
-            "Speed": 1.0,
-            "Input": {"x": 0.4, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
-        },
         {
             "Type": "MoveG",
             "Speed": 1.0,
@@ -231,22 +215,29 @@ def main(args=None):
         {
             "Type": "MoveRP",
             "Speed": 1.0,
-            "Input": {"x": 0.8, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+            "Input": {"x": 0.4, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+        },
+        {
+            "Type": "MoveRP",
+            "Speed": 1.0,
+            "Input": {"x": -1.3, "y": 1.5, "z": 0.8, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+        },
+        {
+            "Type": "MoveRP",
+            "Speed": 1.0,
+            "Input": {"x": 1.36, "y": 0.0, "z": 1.51, "roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+        },
+        {
+            "Type": "MoveG",
+            "Speed": 1.0,
+            "Input": {"value": 99.0}
         },
     ]
 
     # LOAD ROBOT/EE MOVEMENT PYTHON CLIENTS:
-    print("ROBOT: ")
+    print("Control Script: ")
     RobotClient = RBT()
     print("Loaded.")
-    print("")
-    
-    print("END-EFFECTOR:")
-    print("")
-
-    print("============================================================")
-    print("============================================================")
-    print("Executing sequence...")
     print("")
 
     # Initialise -> RES VARIABLE:
@@ -313,7 +304,6 @@ def main(args=None):
 
             else:
                 print("ERROR: ACTION TYPE -> " + x["Type"] + " unknown.")
-                print("Closing program... BYE!")
                 exit()
 
             # CHECK if STEP EXECUTION WAS SUCCESSFUL:
@@ -323,7 +313,6 @@ def main(args=None):
                 print("ERROR: Execution FAILED!")
                 print("Message -> " + RES["Message"])
                 print("")
-                print("Closing... BYE!")
                 exit()
 
             else:
@@ -338,13 +327,12 @@ def main(args=None):
             RobotClient.CANCEL()
 
             print("Sequence execution manually interrupted and cancelled.")
-            print("Closing... BYE!")
             exit()
 
     # ==== FINISH ===== #
     print("")
     print("")
-    print("Sequence successfully executed. Closing Program... Bye!")
+    print("Sequence successfully executed!")
     print("=======================================================")
 
     rclpy.shutdown()
