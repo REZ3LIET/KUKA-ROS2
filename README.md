@@ -97,11 +97,11 @@ Before you begin, ensure you have met the following requirements:
 
     ![Kuka Control Python](./readme_data/kuka_control.gif)
 
-    To control the robot, Action server has been set up as `/Move`. To send the commands to the robot refer and/or execute [action_execution.py:main](./kuka_control/control_scripts/scripts/action_execution.py)
+    To control the robot, Action server has been set up as `/Move`. To send the commands to the robot refer and/or execute [action_helper.py:main](./kuka_control/control_scripts/scripts/action_helper.py)
 
     ```bash
     cd kuka_control/control_scripts/scripts
-    python3 action_execution.py
+    python3 action_helper.py
     ```
 
 ## Changelog
