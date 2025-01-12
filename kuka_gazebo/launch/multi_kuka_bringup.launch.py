@@ -19,16 +19,17 @@ logger = rclpy.logging.get_logger("multi_kuka_bringup.launch")
 def generate_launch_description():
     ld = LaunchDescription()
     # Loading Gazebo
+    world = os.path.join(get_package_share_directory("kuka_gazebo"), "world/empty_world.sdf")
     ign_gazebo_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [os.path.join(get_package_share_directory("ros_gz_sim"), "launch"), "/gz_sim.launch.py"]
         ),
-        launch_arguments={'gz_args': '-r -v1'}.items()
+        launch_arguments={'gz_args': [world, ' -r -v1']}.items()
     )
     ld.add_action(ign_gazebo_node)
 
     robot_list = [
-        # {"robot_name": "arm_1", "gripper_name": "", "x": "-2.0", "y": "0.0", "yaw": "0.0"},
+        {"robot_name": "arm_1", "gripper_name": "", "x": "-2.0", "y": "0.0", "yaw": "0.0"},
         # {"robot_name": "arm_2", "gripper_name": "robotiq_2f_85", "x": "2.0", "y": "0.0", "yaw": "0.0"},
         {"robot_name": "arm_3", "gripper_name": "robotiq_2f_140", "x": "0.0", "y": "-2.0", "yaw": "0.0"},
         # {"robot_name": "arm_4", "gripper_name": "", "x": "0.0", "y": "2.0", "yaw": "0.0"},
