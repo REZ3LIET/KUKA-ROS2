@@ -31,14 +31,16 @@ Before you begin, ensure you have met the following requirements:
 
 2. **Install Dependencies**
 
-    Ensure you have all necessary dependencies installed:
+    - Ensure you have all necessary dependencies installed:
 
-    ```bash
-    sudo apt-get update
-    sudo apt-get install ros-humble-moveit
-    sudo apt-get install ros-humble-gz
-    sudo apt-get install ros-humble-ign-ros2-control
-    ```
+        ```bash
+        sudo apt-get update
+        sudo apt-get install ros-humble-moveit
+        sudo apt-get install ros-humble-gz
+        sudo apt-get install ros-humble-ign-ros2-control
+        ```
+
+    - Additionally you will also have to get the `move_group_interface_improved.h`, refer to **Installation** in the [link](https://github.com/IFRA-Cranfield/ros2_RobotSimulation/blob/foxy/include/README.md)
 
 3. **Build the Workspace**
 
