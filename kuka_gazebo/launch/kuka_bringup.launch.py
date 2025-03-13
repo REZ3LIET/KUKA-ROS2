@@ -235,7 +235,9 @@ def load_robot(context, *args, **kwargs):
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image'],
+        arguments=[
+            '/rgbd_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
+        ],
         output='screen'
     )
 
