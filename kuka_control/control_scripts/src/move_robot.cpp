@@ -39,10 +39,11 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
 // INCLUDE -> FUNCTIONS:
+#include "control_scripts/move_gripper.h"
 #include "control_scripts/move_joints.h"
 #include "control_scripts/move_linear.h"
+#include "control_scripts/move_rot.h"
 #include "control_scripts/move_xyzw.h"
-#include "control_scripts/move_gripper.h"
 
 // Include RCLCPP and RCLCPP_ACTION:
 #include "rclcpp/rclcpp.hpp"
@@ -59,6 +60,7 @@
 // #include "control_actions/msg/joint.hpp"
 #include "control_actions/msg/xyz.hpp"
 #include "control_actions/msg/xyzypr.hpp"
+#include "control_actions/msg/ypr.hpp"
 #include "control_actions/msg/specs.hpp"
 
 // Declaration of GLOBAL VARIABLES --> ROBOT / END-EFFECTOR / ENVIRONMENT PARAMETERS:
@@ -276,10 +278,30 @@ private:
             
             // 3. Assign SPEED and PLANNING METHOD (PTP, LIN, CIRC):
             move_group_interface_ROB.setMaxVelocityScalingFactor(goal->speed);
-            move_group_interface_ROB.setPlannerId("LIN");
+            move_group_interface_ROB.setPlannerId("PTP");
 
             // 4. PLAN:
             MyPlan = plan_ROB();
+
+        } else if (action == "MoveROT" && param_ROB != "none"){
+
+           // 1. Define POSE VECTOR:
+           auto POSE = move_group_interface_ROB.getCurrentPose();
+           RCLCPP_INFO(this->get_logger(), "Current POSE before the new MoveROT was:");
+           RCLCPP_INFO(this->get_logger(), "ORIENTATION (quaternion) -> (x = %.2f, y = %.2f, z = %.2f, w = %.2f)", POSE.pose.orientation.x, POSE.pose.orientation.y,POSE.pose.orientation.z,POSE.pose.orientation.w);
+
+           // 2. CALL MoveROTAction for CALCULATIONS:
+           auto TARGET_POSE = MoveROTAction(goal->moverot, POSE);
+           RCLCPP_INFO(get_logger(), "Received a POSE GOAL request:");
+           RCLCPP_INFO(this->get_logger(), "ORIENTATION (quaternion) -> (x = %.2f, y = %.2f, z = %.2f, w = %.2f)", TARGET_POSE.orientation.x, TARGET_POSE.orientation.y, TARGET_POSE.orientation.z, TARGET_POSE.orientation.w);
+           move_group_interface_ROB.setPoseTarget(TARGET_POSE);
+
+           // 3. Assign SPEED and PLANNING METHOD (PTP, LIN, CIRC):
+           move_group_interface_ROB.setMaxVelocityScalingFactor(goal->speed);
+           move_group_interface_ROB.setPlannerId("PTP");
+
+           // 4. PLAN:
+           MyPlan = plan_ROB();
 
         } else if (action == "MoveRP" && param_ROB != "none"){
             

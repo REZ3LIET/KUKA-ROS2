@@ -15,6 +15,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Specs.msg"
   "msg/Xyz.msg"
   "msg/Xyzypr.msg"
+  "msg/Ypr.msg"
   "action/Move.action"
 )
 if(BUILD_TESTING)

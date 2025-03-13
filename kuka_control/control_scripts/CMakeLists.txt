@@ -24,6 +24,7 @@ add_executable(
   src/move_joints.cpp
   src/move_xyzw.cpp
   src/move_robot.cpp
+  src/move_rot.cpp
 )
 # Install executable:
 install(TARGETS

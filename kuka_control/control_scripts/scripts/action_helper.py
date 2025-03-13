@@ -33,10 +33,6 @@
 import time
 # Required to include ROS2 and its components:
 import rclpy
-from ament_index_python.packages import get_package_share_directory
-import time
-# Required to include ROS2 and its components:
-import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
@@ -45,7 +41,8 @@ from control_actions.action import Move
 from control_actions.msg import Action
 from control_actions.msg import Joints
 from control_actions.msg import Xyzypr
-
+from control_actions.msg import Xyz
+from control_actions.msg import Ypr
 
 RES_DICT = {}
 RES_DICT["Success"] = False
@@ -53,10 +50,10 @@ RES_DICT["Message"] = "null"
 RES_DICT["ExecTime"] = -1.0
 
 class MoveCLIENT(Node):
-    def __init__(self):
+    def __init__(self, callback_group=None):
 
         super().__init__('ros2srrc_Move_Client')
-        self._action_client = ActionClient(self, Move, 'Move')
+        self._action_client = ActionClient(self, Move, 'Move', callback_group=callback_group)
 
         print("[CLIENT - robot.py]: Initialising ROS2 /Move Action Client!")
         print("[CLIENT - robot.py]: Waiting for /Move ROS2 ActionServer to be available...")
@@ -72,6 +69,7 @@ class MoveCLIENT(Node):
         goal_msg.movej = ACTION.movej
         goal_msg.movel = ACTION.movel
         goal_msg.moverp = ACTION.moverp
+        goal_msg.moverot = ACTION.moverot
         goal_msg.moveg = ACTION.moveg
         
         self._send_goal_future = self._action_client.send_goal_async(goal_msg)
@@ -105,10 +103,10 @@ class MoveCLIENT(Node):
 
 class RBT():
 
-    def __init__(self):
+    def __init__(self, callback_group=None):
 
         # Initialise /Move and /RobMove Action Clients:
-        self.MoveClient = MoveCLIENT()
+        self.MoveClient = MoveCLIENT(callback_group=callback_group)
         self.EXECUTING = ""
 
     def Move_EXECUTE(self, ACTION):
@@ -156,8 +154,8 @@ class RBT():
         print("")
 
 class KukaActionHelper:
-    def  __init__(self):
-        self.action_executer = RBT()
+    def  __init__(self, callback_group=None):
+        self.action_executer = RBT(callback_group=callback_group)
 
     def move_joints(self, joint_list, speed):
         action_msg = Action()
@@ -175,7 +173,35 @@ class KukaActionHelper:
 
         result = self.action_executer.Move_EXECUTE(action_msg)
         return result["Success"]
-    
+
+    def move_linear(self, x, y, z, speed=1.0):
+        action_msg = Action()
+        action_msg.action = "MoveL"
+        action_msg.speed = speed
+
+        pose_msg = Xyz()
+        pose_msg.x = x
+        pose_msg.y = y
+        pose_msg.z = z
+        action_msg.movel = pose_msg
+
+        result = self.action_executer.Move_EXECUTE(action_msg)
+        return result["Success"]
+
+    def move_rot(self, roll, pitch, yaw, speed=1.0):
+        action_msg = Action()
+        action_msg.action = "MoveROT"
+        action_msg.speed = speed
+
+        pose_msg = Ypr()
+        pose_msg.roll = roll
+        pose_msg.pitch = pitch
+        pose_msg.yaw = yaw
+        action_msg.moverot = pose_msg
+
+        result = self.action_executer.Move_EXECUTE(action_msg)
+        return result["Success"]
+
     def move_xyzw(self, x, y, z, roll, pitch, yaw, speed=1.0):
         action_msg = Action()
         action_msg.action = "MoveRP"
@@ -207,8 +233,12 @@ def main(args=None):
     rclpy.init(args=args)
 
     action_executer = KukaActionHelper()
-    action_executer.move_xyzw(0.4, 1.5, 0.8, 0.0, 0.0, 0.0)
-    action_executer.toggle_gripper(0.0)
+    # action_executer.move_linear(-0.1, 0.0, 0.0)  # Front and Back
+    # action_executer.move_linear(0.0, 0.0, 0.2)  # Up and Down
+    action_executer.move_linear(0.0, 0.1, 0.0)  # 
+    # action_executer.move_rot(0.0, 0.0, 90.0)  # Along X
+    # action_executer.move_rot(0.0, 90.0, 0.0)  # Along Y
+    # action_executer.move_rot(90.0, 0.0, 0.0)  # Along Z
 
     rclpy.shutdown()
     exit()
