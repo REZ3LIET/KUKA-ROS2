@@ -6,7 +6,7 @@
       <always_on>true</always_on>
       <visualize>true</visualize>
       <update_rate>30.0</update_rate>
-      <topic>camera/image_raw</topic>
+      <topic>rgbd_camera</topic>
       <gz_frame_id>camera_link_optical</gz_frame_id>
       <camera name="camera">
         <camera_info_topic>camera/camera_info</camera_info_topic>
@@ -18,7 +18,7 @@
         </image>
         <clip>
           <near>0.05</near>
-          <far>30</far>
+          <far>50</far>
         </clip>
       </camera>
     </sensor>
